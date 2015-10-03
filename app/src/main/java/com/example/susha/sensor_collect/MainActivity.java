@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -139,44 +140,64 @@ public class MainActivity extends AppCompatActivity {
                 // true if the switch is in the On position
                 //Get date for naming file
 
-                //Data file creation
-                try {
 
-                    //app folder is setup
-                    File SessionDir = new File(String.valueOf(Environment.getExternalStoragePublicDirectory("Senior Design")));
-                    if(!SessionDir.exists()){
-                        SessionDir.mkdir();
-                    }
-
-                    run = false;
-                    inertiafile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), "inertia.txt");
-                    wififile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), "wifi.txt");
-                    visualfile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), "visual.txt");
-
-                    gyroscope = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "gyroscope.txt");
-                    magnetic = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "magnetic.txt");
-                    accelerometer = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "accelerometer.txt");
-                    orientation = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "orientation.txt");
-                    gravity = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "gravity.txt");
-                    gyroscopeofstream = new BufferedWriter(new FileWriter(gyroscope)); //program crashes here
-                    magneticofstream = new BufferedWriter(new FileWriter(magnetic));
-                    accelerometerofstream = new BufferedWriter(new FileWriter(accelerometer));
-                    orientationofstream = new BufferedWriter(new FileWriter(orientation));
-                    gravityofstream = new BufferedWriter(new FileWriter(gravity));
-
-                    inertiaofstream = new BufferedWriter(new FileWriter(inertiafile));
-                    wifiofstream = new BufferedWriter(new FileWriter(wififile));
-                    visualofstream = new BufferedWriter(new FileWriter(visualfile));
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 //output.setText(Environment.getExternalStoragePublicDirectory("Senior Design").toString());
 
                 toggle.setTextOn("Recording");
                 run = isChecked;
                 if (isChecked) {
+                    //Data file creation
+                    try {
 
+                        //app folder is setup
+                        File ProjectDir = new File(Environment.getExternalStorageDirectory()+File.separator+"SeniorDesign");
+
+                        if(!ProjectDir.exists()){
+                            ProjectDir.mkdir();
+                        }
+                        Calendar calNow = Calendar.getInstance();
+                        Date current=new Date();
+                        calNow.setTimeInMillis(current.getTime());
+                        String sessionName = "BluePrint_"+calNow.get(Calendar.MONTH)+"_"+
+                                calNow.get(Calendar.DATE)+"_"+calNow.get(Calendar.YEAR)+"_"+
+                                calNow.get(Calendar.HOUR)+":"+calNow.get(Calendar.MINUTE)+
+                                ":"+calNow.get(Calendar.SECOND);
+                        File SessionDir =  new File(ProjectDir+File.separator+ sessionName);
+                        if(!SessionDir.exists()){
+                            SessionDir.mkdir();
+                        }
+                        run = false;
+                        inertiafile = new File(SessionDir+File.separator+ "inertia.txt");
+                        wififile = new File(SessionDir+File.separator+ "wifi.txt");
+                        visualfile = new File(SessionDir+File.separator+ "visual.txt");
+                        gyroscope = new File(SessionDir+File.separator+ input.getText() + "gyroscope.txt");
+                        magnetic = new File(SessionDir+File.separator+ input.getText() + "magnetic.txt");
+                        accelerometer = new File(SessionDir+File.separator+ input.getText() + "accelerometer.txt");
+                        orientation = new File(SessionDir+File.separator+ input.getText() + "orientation.txt");
+                        gravity = new File(SessionDir+File.separator+ input.getText() + "gravity.txt");
+
+                       // inertiafile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), "inertia.txt");
+                       // wififile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), "wifi.txt");
+                       // visualfile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), "visual.txt");
+//
+                       // gyroscope = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "gyroscope.txt");
+                       // magnetic = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "magnetic.txt");
+                       // accelerometer = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "accelerometer.txt");
+                       // orientation = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "orientation.txt");
+                       // gravity = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "gravity.txt");
+                        gyroscopeofstream = new BufferedWriter(new FileWriter(gyroscope)); //program crashes here
+                        magneticofstream = new BufferedWriter(new FileWriter(magnetic));
+                        accelerometerofstream = new BufferedWriter(new FileWriter(accelerometer));
+                        orientationofstream = new BufferedWriter(new FileWriter(orientation));
+                        gravityofstream = new BufferedWriter(new FileWriter(gravity));
+
+                        inertiaofstream = new BufferedWriter(new FileWriter(inertiafile));
+                        wifiofstream = new BufferedWriter(new FileWriter(wififile));
+                        visualofstream = new BufferedWriter(new FileWriter(visualfile));
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     //input.setFocusable(false);
                     //input.setFocusable(false);
                     //InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -185,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
                     startRecord();
                     output2.setText("Recording data...");
                 } else {
-
                     //input.setFocusable(true);
                     input.setText("");
                     input.setHint("New session name...");
