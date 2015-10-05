@@ -93,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
     private Thread recordingThread;
     private String tone;
     private String visualpath;
+    private String appDirName = "BluePrint";
+    private File SessionDir;
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
@@ -122,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
         pulse.setEnabled(false);
         camera.setEnabled(false);
-        video.setEnabled(false);
+        video.setEnabled(true);
 
         //WiFi set up
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -150,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
 
                         //app folder is setup
-                        File ProjectDir = new File(Environment.getExternalStorageDirectory()+File.separator+"SeniorDesign");
+                        File ProjectDir = new File(Environment.getExternalStorageDirectory()+File.separator+appDirName);
 
                         if(!ProjectDir.exists()){
                             ProjectDir.mkdir();
@@ -158,11 +160,11 @@ public class MainActivity extends AppCompatActivity {
                         Calendar calNow = Calendar.getInstance();
                         Date current=new Date();
                         calNow.setTimeInMillis(current.getTime());
-                        String sessionName = "BluePrint_"+calNow.get(Calendar.MONTH)+"_"+
+                        String sessionName = "BluePrint_"+(calNow.get(Calendar.MONTH)+1)+"_"+
                                 calNow.get(Calendar.DATE)+"_"+calNow.get(Calendar.YEAR)+"_"+
                                 calNow.get(Calendar.HOUR)+":"+calNow.get(Calendar.MINUTE)+
                                 ":"+calNow.get(Calendar.SECOND);
-                        File SessionDir =  new File(ProjectDir+File.separator+ sessionName);
+                        SessionDir =  new File(ProjectDir+File.separator+ sessionName);
                         if(!SessionDir.exists()){
                             SessionDir.mkdir();
                         }
@@ -176,15 +178,8 @@ public class MainActivity extends AppCompatActivity {
                         orientation = new File(SessionDir+File.separator+ input.getText() + "orientation.txt");
                         gravity = new File(SessionDir+File.separator+ input.getText() + "gravity.txt");
 
-                       // inertiafile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), "inertia.txt");
-                       // wififile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), "wifi.txt");
-                       // visualfile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), "visual.txt");
-//
-                       // gyroscope = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "gyroscope.txt");
-                       // magnetic = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "magnetic.txt");
-                       // accelerometer = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "accelerometer.txt");
-                       // orientation = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "orientation.txt");
-                       // gravity = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), input.getText() + "gravity.txt");
+                        visualpath = SessionDir.getAbsolutePath();
+
                         gyroscopeofstream = new BufferedWriter(new FileWriter(gyroscope)); //program crashes here
                         magneticofstream = new BufferedWriter(new FileWriter(magnetic));
                         accelerometerofstream = new BufferedWriter(new FileWriter(accelerometer));
@@ -223,7 +218,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //Create intent to capture image
 
-                fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
+                fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+                //fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
 
                 // start the image capture Intent
@@ -335,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
 
         audioDateStamp = new Date();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(datestamp);
-        File outputFile = new File(Environment.getExternalStoragePublicDirectory("Senior Design"), timeStamp + ".pcm");
+        File outputFile = new File(Environment.getExternalStoragePublicDirectory(appDirName), timeStamp + ".pcm");
         try {
             visualofstream.write(Long.toString(datestamp.getTime()) + "\t" + outputFile.getPath() + "\n");
             visualofstream.flush();
@@ -499,9 +495,7 @@ public class MainActivity extends AppCompatActivity {
     private File getOutputMediaFile(int type) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
-
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                "Senior Design"), "Pictures");
+        File mediaStorageDir = new File(SessionDir.getPath(), "Pictures");
 
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
