@@ -164,7 +164,7 @@ public class LogRunnable implements Runnable{
             }
         };
         for (Sensor insert : currentDevice) {
-            mSensorManager.registerListener(mListener, insert, SensorManager.SENSOR_DELAY_NORMAL, handler);
+            mSensorManager.registerListener(mListener, insert, 20000,100);
         }
     }
 

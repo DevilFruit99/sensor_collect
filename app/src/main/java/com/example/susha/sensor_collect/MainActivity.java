@@ -1,10 +1,17 @@
 package com.example.susha.sensor_collect;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
-
+import android.support.design.widget.Snackbar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -61,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private Button camera;
     private Button video;
 
+    private View mLayout;
 
     List<ScanResult> AP = new ArrayList<ScanResult>();
     AudioRecord record;
@@ -78,10 +86,10 @@ public class MainActivity extends AppCompatActivity {
     private BufferedWriter orientationofstream;
     private BufferedWriter gravityofstream;
 
-    private BufferedWriter inertiaofstream;
+    private BufferedWriter summaryofstream;
     private BufferedWriter wifiofstream;
     private BufferedWriter visualofstream;
-    private File inertiafile;
+    private File summaryfile;
     private File wififile;
     private File visualfile;
     private Uri fileUri;
@@ -99,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
 
-
+    private static final int REQUEST_LOC=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,9 +140,6 @@ public class MainActivity extends AppCompatActivity {
         tone = "test1.mp3";
 
 
-
-
-
         //begin begin recording
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -152,31 +157,36 @@ public class MainActivity extends AppCompatActivity {
                     try {
 
                         //app folder is setup
-                        File ProjectDir = new File(Environment.getExternalStorageDirectory()+File.separator+appDirName);
+                        File ProjectDir = new File(Environment.getExternalStorageDirectory() + File.separator + appDirName);
 
-                        if(!ProjectDir.exists()){
+                        if (!ProjectDir.exists()) {
                             ProjectDir.mkdir();
                         }
                         Calendar calNow = Calendar.getInstance();
-                        Date current=new Date();
+                        Date current = new Date();
                         calNow.setTimeInMillis(current.getTime());
-                        String sessionName = "BluePrint_"+(calNow.get(Calendar.MONTH)+1)+"_"+
-                                calNow.get(Calendar.DATE)+"_"+calNow.get(Calendar.YEAR)+"_"+
-                                calNow.get(Calendar.HOUR)+":"+calNow.get(Calendar.MINUTE)+
-                                ":"+calNow.get(Calendar.SECOND);
-                        SessionDir =  new File(ProjectDir+File.separator+ sessionName);
-                        if(!SessionDir.exists()){
+                        TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+                        String sessionName = (calNow.get(Calendar.MONTH) + 1) + "_" +
+                                calNow.get(Calendar.DATE) + "_" + calNow.get(Calendar.YEAR) + "_" +
+                                calNow.get(Calendar.HOUR_OF_DAY) + "-" + calNow.get(Calendar.MINUTE) +
+                                "-" + calNow.get(Calendar.SECOND) + "(" + tm.getDeviceId() + ")";
+                        SessionDir = new File(ProjectDir + File.separator + sessionName);
+                        if (!SessionDir.exists()) {
                             SessionDir.mkdir();
                         }
                         run = false;
-                        inertiafile = new File(SessionDir+File.separator+ "inertia.txt");
-                        wififile = new File(SessionDir+File.separator+ "wifi.txt");
-                        visualfile = new File(SessionDir+File.separator+ "visual.txt");
-                        gyroscope = new File(SessionDir+File.separator+ input.getText() + "gyroscope.txt");
-                        magnetic = new File(SessionDir+File.separator+ input.getText() + "magnetic.txt");
-                        accelerometer = new File(SessionDir+File.separator+ input.getText() + "accelerometer.txt");
-                        orientation = new File(SessionDir+File.separator+ input.getText() + "orientation.txt");
-                        gravity = new File(SessionDir+File.separator+ input.getText() + "gravity.txt");
+                        summaryfile = new File(SessionDir + File.separator + "Summary file.txt");
+                        summaryofstream = new BufferedWriter(new FileWriter(summaryfile));
+                        fillSummary();
+
+                        wififile = new File(SessionDir + File.separator + "wifi.txt");
+
+                        visualfile = new File(SessionDir + File.separator + "visual.txt");
+                        gyroscope = new File(SessionDir + File.separator + input.getText() + "gyroscope.txt");
+                        magnetic = new File(SessionDir + File.separator + input.getText() + "magnetic.txt");
+                        accelerometer = new File(SessionDir + File.separator + input.getText() + "accelerometer.txt");
+                        orientation = new File(SessionDir + File.separator + input.getText() + "orientation.txt");
+                        gravity = new File(SessionDir + File.separator + input.getText() + "gravity.txt");
 
                         visualpath = SessionDir.getAbsolutePath();
 
@@ -186,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                         orientationofstream = new BufferedWriter(new FileWriter(orientation));
                         gravityofstream = new BufferedWriter(new FileWriter(gravity));
 
-                        inertiaofstream = new BufferedWriter(new FileWriter(inertiafile));
+
                         wifiofstream = new BufferedWriter(new FileWriter(wififile));
                         visualofstream = new BufferedWriter(new FileWriter(visualfile));
 
@@ -207,7 +217,10 @@ public class MainActivity extends AppCompatActivity {
                     input.requestFocus();
                     //InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     //imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+                    //add code to upload to server
+                    //show progress dialog
                     output2.setText("");
+
                 }
                 camera.setEnabled(isChecked);
             }
@@ -267,6 +280,73 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void fillSummary() {
+
+        String gps = "";
+        LocationManager mlocManager = null;
+        LocationListener mlocListener;
+        mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        mlocListener = new MyLocationListener();
+/*
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestGPSPermission();
+        }*/
+        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+
+        if (mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if(MyLocationListener.latitude>0)
+            {
+                gps=MyLocationListener.latitude+"\t"+MyLocationListener.longitude;
+            }
+            else
+            {
+                gps = "gps not ready";
+            }
+        } else {
+            //et_field_name.setText("GPS is not turned on...");
+            Toast.makeText(getBaseContext(), "GPS not turned on", Toast.LENGTH_SHORT).show();
+        }
+        String add = Long.toString(new Date().getTime()) + "\t" + gps + "\n";
+
+        try {
+            summaryofstream.write(add);
+            summaryofstream.flush();
+        } catch (IOException e) {
+            Toast.makeText(getBaseContext(), "Failed to write to Summary file.txt", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void requestGPSPermission() {
+        //Log.i(TAG, "CAMERA permission has NOT been granted. Requesting permission.");
+
+        // BEGIN_INCLUDE(location_permission_request)
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // Provide an additional rationale to the user if the permission was not granted
+            // and the user would benefit from additional context for the use of the permission.
+            // For example if the user has previously denied the permission.
+            //Log.i(TAG,
+            //        "Displaying camera permission rationale to provide additional context.");
+            Snackbar.make(mLayout, "Grant GPS permissions",
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction("ok", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    REQUEST_LOC);
+                        }
+                    })
+                    .show();
+        } else {
+
+            // Camera permission has not been granted yet. Request it directly.
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
+                    REQUEST_LOC);
+        }
+        // END_INCLUDE(camera_permission_request)
     }
 
     //Recording thread (spawns child wifi recording thread and inertia recording thread)
