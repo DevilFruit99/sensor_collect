@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaScannerConnection;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -188,6 +189,19 @@ public class MainActivity extends AppCompatActivity {
                         orientation = new File(SessionDir + File.separator + input.getText() + "orientation.txt");
                         gravity = new File(SessionDir + File.separator + input.getText() + "gravity.txt");
 
+                        ArrayList<String> toBeScanned = new ArrayList<String>();
+                        toBeScanned.add(SessionDir + File.separator + "Summary file.txt");
+                        toBeScanned.add(SessionDir + File.separator + "wifi.txt");
+                        toBeScanned.add(SessionDir + File.separator + "visual.txt");
+                        toBeScanned.add(SessionDir + File.separator + "gyroscope.txt");
+                        toBeScanned.add(SessionDir + File.separator + "magnetic.txt");
+                        toBeScanned.add(SessionDir + File.separator + "accelerometer.txt");
+                        toBeScanned.add(SessionDir + File.separator + "orientation.txt");
+                        toBeScanned.add(SessionDir + File.separator + "gravity.txt");
+
+                        String[] toBeScannedStr = new String[toBeScanned.size()];
+                        toBeScannedStr = toBeScanned.toArray(toBeScannedStr);
+                        MediaScannerConnection.scanFile(MainActivity.this, toBeScannedStr, null, null);
                         visualpath = SessionDir.getAbsolutePath();
 
                         gyroscopeofstream = new BufferedWriter(new FileWriter(gyroscope)); //program crashes here
