@@ -20,20 +20,109 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentStart="false"
         android:layout_below="@+id/textView"
         android:windowSoftInputMode="stateAlwaysHidden"
         android:layout_marginTop="34dp" />
 
     <Switch
         android:id="@+id/switch1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Record"
+        android:checked="false"
+        android:clickable="true"
+        android:textColor="#FF0000"
+        android:layout_below="@+id/editText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Switch
+        android:id="@+id/switchWifi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/editText"
-        android:text="Record"
-        android:checked="false" />
+        android:text="Wifi"
+        android:checked="true"
+        android:clickable="true"
+        android:textColor="#AAAAAA"
+        android:enabled="true"
+        android:layout_below="@+id/switch1"
+        android:layout_alignRight="@+id/switchVisual"
+        android:layout_alignEnd="@+id/switchVisual"
+        android:layout_marginTop="29dp" />
+
+    <Switch
+        android:id="@+id/switchVisual"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Visual"
+        android:checked="true"
+        android:clickable="true"
+        android:textColor="#AAAAAA"
+        android:enabled="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/switchWifi" />
+
+    <Switch
+        android:id="@+id/switchGyroscope"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Gyroscope"
+        android:checked="true"
+        android:clickable="true"
+        android:textColor="#AAAAAA"
+        android:enabled="true"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/switchVisual" />
+
+    <Switch
+        android:id="@+id/switchMagnetic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Magnetic"
+        android:checked="true"
+        android:clickable="true"
+        android:textColor="#AAAAAA"
+        android:enabled="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/switchGyroscope" />
+
+    <Switch
+        android:id="@+id/switchAccelerometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Accelerometer"
+        android:checked="true"
+        android:clickable="true"
+        android:textColor="#AAAAAA"
+        android:enabled="true"
+        android:layout_alignEnd="@+id/switchOrientation"
+        android:layout_below="@+id/switchMagnetic" />
+
+    <Switch
+        android:id="@+id/switchOrientation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Orientation"
+        android:checked="true"
+        android:clickable="true"
+        android:textColor="#AAAAAA"
+        android:enabled="true"
+        android:layout_alignEnd="@+id/switchGravity"
+        android:layout_below="@+id/switchAccelerometer" />
+
+    <Switch
+        android:id="@+id/switchGravity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Gravity"
+        android:checked="true"
+        android:clickable="true"
+        android:textColor="#AAAAAA"
+        android:enabled="true"
+        android:layout_alignEnd="@+id/button"
+        android:layout_below="@+id/switchOrientation" />
 
     <Button
         android:id="@+id/button"
@@ -49,9 +138,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Camera"
-        android:layout_below="@+id/switch1"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"/>
+        android:layout_marginBottom="67dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:id="@+id/button3"
@@ -69,4 +159,5 @@
         android:textColor="@color/abc_search_url_text_normal"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"/>
+
 </RelativeLayout>

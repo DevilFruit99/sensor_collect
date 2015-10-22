@@ -65,6 +65,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView output;
     private TextView output2;
     private Switch toggle;
+    private Switch switchWifi;
+    private Switch switchVisual;
+    private Switch switchGyroscope;
+    private Switch switchMagnetic;
+    private Switch switchAccelerometer;
+    private Switch switchOrientation;
+    private Switch switchGravity;
     private Button pulse;
     private Button camera;
     private Button video;
@@ -123,6 +130,14 @@ public class MainActivity extends AppCompatActivity {
         video = (Button) findViewById(R.id.button3);
         output2 = (TextView) findViewById(R.id.textView2);
 
+        // Setup toggle switches
+        switchWifi = (Switch) findViewById(R.id.switchWifi);
+        switchVisual = (Switch) findViewById(R.id.switchVisual);
+        switchGyroscope = (Switch) findViewById(R.id.switchGyroscope);
+        switchMagnetic = (Switch) findViewById(R.id.switchMagnetic);
+        switchAccelerometer = (Switch) findViewById(R.id.switchAccelerometer);
+        switchOrientation = (Switch) findViewById(R.id.switchOrientation);
+        switchGravity = (Switch) findViewById(R.id.switchGravity);
 
         //Constant initialization
         output.setText(getBaseContext().getFilesDir().toString());//saves output file location. /data/data/com.example.susha.sensor_collect/files
@@ -130,6 +145,29 @@ public class MainActivity extends AppCompatActivity {
         input.setHint("Session name");
         toggle.setTextOff("Start");
         toggle.setTextOn("Recording");
+
+        // Initialize switches text
+        switchWifi.setTextOff("Disabled");
+        switchWifi.setTextOn("Enabled");
+        switchWifi.setChecked(true);
+        switchVisual.setTextOff("Disabled");
+        switchVisual.setTextOn("Enabled");
+        switchVisual.setChecked(true);
+        switchGyroscope.setTextOff("Disabled");
+        switchGyroscope.setTextOn("Enabled");
+        switchGyroscope.setChecked(true);
+        switchMagnetic.setTextOff("Disabled");
+        switchMagnetic.setTextOn("Enabled");
+        switchMagnetic.setChecked(true);
+        switchAccelerometer.setTextOff("Disabled");
+        switchAccelerometer.setTextOn("Enabled");
+        switchAccelerometer.setChecked(true);
+        switchOrientation.setTextOff("Disabled");
+        switchOrientation.setTextOn("Enabled");
+        switchOrientation.setChecked(true);
+        switchGravity.setTextOff("Disabled");
+        switchGravity.setTextOn("Enabled");
+        switchGravity.setChecked(true);
 
         pulse.setEnabled(false);
         camera.setEnabled(false);
@@ -180,39 +218,72 @@ public class MainActivity extends AppCompatActivity {
                         summaryofstream = new BufferedWriter(new FileWriter(summaryfile));
                         fillSummary();
 
-                        wififile = new File(SessionDir + File.separator + "wifi.txt");
-
-                        visualfile = new File(SessionDir + File.separator + "visual.txt");
-                        gyroscope = new File(SessionDir + File.separator + input.getText() + "gyroscope.txt");
-                        magnetic = new File(SessionDir + File.separator + input.getText() + "magnetic.txt");
-                        accelerometer = new File(SessionDir + File.separator + input.getText() + "accelerometer.txt");
-                        orientation = new File(SessionDir + File.separator + input.getText() + "orientation.txt");
-                        gravity = new File(SessionDir + File.separator + input.getText() + "gravity.txt");
-
+                        // Create a list of what is to be checked (MediaScannerConnection list)
                         ArrayList<String> toBeScanned = new ArrayList<String>();
                         toBeScanned.add(SessionDir + File.separator + "Summary file.txt");
-                        toBeScanned.add(SessionDir + File.separator + "wifi.txt");
-                        toBeScanned.add(SessionDir + File.separator + "visual.txt");
-                        toBeScanned.add(SessionDir + File.separator + "gyroscope.txt");
-                        toBeScanned.add(SessionDir + File.separator + "magnetic.txt");
-                        toBeScanned.add(SessionDir + File.separator + "accelerometer.txt");
-                        toBeScanned.add(SessionDir + File.separator + "orientation.txt");
-                        toBeScanned.add(SessionDir + File.separator + "gravity.txt");
 
+                        // Init all bufferWriter objects to null, letting ifChecked modify them
+                        wifiofstream = null;
+                        visualofstream = null;
+                        gyroscopeofstream = null;
+                        magneticofstream = null;
+                        accelerometerofstream = null;
+                        orientationofstream = null;
+                        gravityofstream = null;
+
+                        // Check switches
+                        if(switchWifi.isChecked()) {
+                            wififile = new File(SessionDir + File.separator + "wifi.txt");
+                            toBeScanned.add(SessionDir + File.separator + "wifi.txt");
+                            wifiofstream = new BufferedWriter(new FileWriter(wififile));
+                        }
+                        if(switchVisual.isChecked()) {
+                            visualfile = new File(SessionDir + File.separator + "visual.txt");
+                            toBeScanned.add(SessionDir + File.separator + "visual.txt");
+                            visualofstream = new BufferedWriter(new FileWriter(visualfile));
+                        }
+                        if(switchGyroscope.isChecked()) {
+                            gyroscope = new File(SessionDir + File.separator + input.getText() + "gyroscope.txt");
+                            toBeScanned.add(SessionDir + File.separator + "gyroscope.txt");
+                            gyroscopeofstream = new BufferedWriter(new FileWriter(gyroscope)); //program crashes here
+                        }
+                        if(switchMagnetic.isChecked()) {
+                            magnetic = new File(SessionDir + File.separator + input.getText() + "magnetic.txt");
+                            toBeScanned.add(SessionDir + File.separator + "magnetic.txt");
+                            magneticofstream = new BufferedWriter(new FileWriter(magnetic));
+                        }
+                        if(switchAccelerometer.isChecked()) {
+                            accelerometer = new File(SessionDir + File.separator + input.getText() + "accelerometer.txt");
+                            toBeScanned.add(SessionDir + File.separator + "accelerometer.txt");
+                            accelerometerofstream = new BufferedWriter(new FileWriter(accelerometer));
+                        }
+                        if(switchOrientation.isChecked()) {
+                            orientation = new File(SessionDir + File.separator + input.getText() + "orientation.txt");
+                            toBeScanned.add(SessionDir + File.separator + "orientation.txt");
+                            orientationofstream = new BufferedWriter(new FileWriter(orientation));
+                        }
+                        if(switchGravity.isChecked()) {
+                            gravity = new File(SessionDir + File.separator + input.getText() + "gravity.txt");
+                            toBeScanned.add(SessionDir + File.separator + "gravity.txt");
+                            gravityofstream = new BufferedWriter(new FileWriter(gravity));
+                        }
+
+                        // Iterate through the toBeScanned list for MediaScannerConnection
                         String[] toBeScannedStr = new String[toBeScanned.size()];
                         toBeScannedStr = toBeScanned.toArray(toBeScannedStr);
                         MediaScannerConnection.scanFile(MainActivity.this, toBeScannedStr, null, null);
+
+
                         visualpath = SessionDir.getAbsolutePath();
 
-                        gyroscopeofstream = new BufferedWriter(new FileWriter(gyroscope)); //program crashes here
-                        magneticofstream = new BufferedWriter(new FileWriter(magnetic));
-                        accelerometerofstream = new BufferedWriter(new FileWriter(accelerometer));
-                        orientationofstream = new BufferedWriter(new FileWriter(orientation));
-                        gravityofstream = new BufferedWriter(new FileWriter(gravity));
-
-
-                        wifiofstream = new BufferedWriter(new FileWriter(wififile));
-                        visualofstream = new BufferedWriter(new FileWriter(visualfile));
+                        // Disable the switches after recording.
+                        switchWifi.setEnabled(false);
+                        switchVisual.setEnabled(false);
+                        switchGyroscope.setEnabled(false);
+                        switchMagnetic.setEnabled(false);
+                        switchAccelerometer.setEnabled(false);
+                        switchOrientation.setEnabled(false);
+                        switchGravity.setEnabled(false);
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -234,6 +305,15 @@ public class MainActivity extends AppCompatActivity {
                     //add code to upload to server
                     //show progress dialog
                     output2.setText("");
+
+                    // Enable the switches after recording.
+                    switchWifi.setEnabled(true);
+                    switchVisual.setEnabled(true);
+                    switchGyroscope.setEnabled(true);
+                    switchMagnetic.setEnabled(true);
+                    switchAccelerometer.setEnabled(true);
+                    switchOrientation.setEnabled(true);
+                    switchGravity.setEnabled(true);
 
                 }
                 camera.setEnabled(isChecked);
@@ -365,13 +445,16 @@ public class MainActivity extends AppCompatActivity {
 
     //Recording thread (spawns child wifi recording thread and inertia recording thread)
     private void startRecord() {
-        new Thread(new Runnable() {
-            public void run() {
-                while (run) {
+
+        if(switchWifi.isChecked()) {
+            new Thread(new Runnable() {
+                public void run() {
+                    while (run) {
+                    }
+                    wifiScan();
                 }
-                wifiScan();
-            }
-        }).start();
+            }).start();
+        }
         boolean cheat[] = new boolean[1];
         cheat[0] = run;
         //new Thread(new LogRunnable(MainActivity.this, inertiaofstream, cheat)).start();

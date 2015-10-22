@@ -88,7 +88,8 @@ public class LogRunnable implements Runnable{
             @Override
             public final void onSensorChanged(SensorEvent event) {
                 Date current = new Date();
-                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)) {// && !lowAccuracy[currentDevice.indexOf
+
+                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) && accelerometerofstream!=null) {// && !lowAccuracy[currentDevice.indexOf
                     //(event.sensor)]) {
                     mGravity = event.values;
                     String add = Long.toString(current.getTime()) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
@@ -99,7 +100,7 @@ public class LogRunnable implements Runnable{
                         Toast.makeText(mContext, "Accel record fail; queue full", Toast.LENGTH_SHORT).show();
                     }
                 }
-                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)) {// && !lowAccuracy[currentDevice.indexOf
+                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) && gravityofstream!=null) {// && !lowAccuracy[currentDevice.indexOf
                     //(event.sensor)]) {
                     String add = Long.toString(current.getTime()) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
                     try {
@@ -109,7 +110,7 @@ public class LogRunnable implements Runnable{
                         Toast.makeText(mContext, "Gravity record fail; queue full", Toast.LENGTH_SHORT).show();
                     }
                 }
-                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)) {// && !lowAccuracy[currentDevice.indexOf
+                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) && gyroscopeofstream!=null) {// && !lowAccuracy[currentDevice.indexOf
                     //(event.sensor)]) {
                     String add = Long.toString(current.getTime()) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
                     try {
@@ -120,7 +121,7 @@ public class LogRunnable implements Runnable{
                     }
                 }
 
-                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION)) {// && !lowAccuracy[currentDevice.indexOf
+                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) && orientationofstream!=null) {// && !lowAccuracy[currentDevice.indexOf
                     //(event.sensor)]) {
                     String add = Long.toString(current.getTime()) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
                     try {
@@ -130,7 +131,7 @@ public class LogRunnable implements Runnable{
                         Toast.makeText(mContext, "Depreciated Orientation record fail; queue full", Toast.LENGTH_SHORT).show();
                     }
                 }
-                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)) {
+                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) && magneticofstream!=null) {
                     String add = Long.toString(current.getTime()) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
                     mGeomagnetic = event.values;
                     try {
@@ -140,7 +141,7 @@ public class LogRunnable implements Runnable{
                         Toast.makeText(mContext, "Magnetometer record fail; queue full", Toast.LENGTH_SHORT).show();
                     }
                 }
-                if (mGravity != null && mGeomagnetic != null) {
+                if (mGravity != null && mGeomagnetic != null && orientationofstream!=null) {
                     float R[] = new float[9];
                     float I[] = new float[9];
                     boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
