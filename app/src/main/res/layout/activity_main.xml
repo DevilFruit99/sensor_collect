@@ -97,8 +97,9 @@
         android:clickable="true"
         android:textColor="#AAAAAA"
         android:enabled="true"
-        android:layout_alignEnd="@+id/switchOrientation"
-        android:layout_below="@+id/switchMagnetic" />
+        android:layout_below="@+id/switchMagnetic"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentRight="true" />
 
     <Switch
         android:id="@+id/switchOrientation"
@@ -109,8 +110,8 @@
         android:clickable="true"
         android:textColor="#AAAAAA"
         android:enabled="true"
-        android:layout_alignEnd="@+id/switchGravity"
-        android:layout_below="@+id/switchAccelerometer" />
+        android:layout_below="@+id/switchAccelerometer"
+        android:layout_alignParentRight="true" />
 
     <Switch
         android:id="@+id/switchGravity"
@@ -121,8 +122,8 @@
         android:clickable="true"
         android:textColor="#AAAAAA"
         android:enabled="true"
-        android:layout_alignEnd="@+id/button"
-        android:layout_below="@+id/switchOrientation" />
+        android:layout_below="@+id/switchOrientation"
+        android:layout_alignParentRight="true" />
 
     <Button
         android:id="@+id/button"
@@ -159,5 +160,15 @@
         android:textColor="@color/abc_search_url_text_normal"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="# of picture taken: 0"
+        android:id="@+id/textPictureCount"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText input;
     private TextView output;
     private TextView output2;
+    private TextView textPictureCount;
     private Switch toggle;
     private Switch switchWifi;
     private Switch switchVisual;
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
         camera = (Button) findViewById(R.id.button2);
         video = (Button) findViewById(R.id.button3);
         output2 = (TextView) findViewById(R.id.textView2);
+        textPictureCount = (TextView) findViewById(R.id.textPictureCount);
 
         // Setup toggle switches
         switchWifi = (Switch) findViewById(R.id.switchWifi);
@@ -145,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         input.setHint("Session name");
         toggle.setTextOff("Start");
         toggle.setTextOn("Recording");
+        textPictureCount.setText("# of pictures taken: 0");
 
         // Initialize switches text
         switchWifi.setTextOff("Disabled");
@@ -241,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
                             visualfile = new File(SessionDir + File.separator + "visual.txt");
                             toBeScanned.add(SessionDir + File.separator + "visual.txt");
                             visualofstream = new BufferedWriter(new FileWriter(visualfile));
+                            camera.setEnabled(true);
                         }
                         if(switchGyroscope.isChecked()) {
                             gyroscope = new File(SessionDir + File.separator + input.getText() + "gyroscope.txt");
@@ -305,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
                     //add code to upload to server
                     //show progress dialog
                     output2.setText("");
+                    textPictureCount.setText("# of pictures taken: 0");
 
                     // Enable the switches after recording.
                     switchWifi.setEnabled(true);
@@ -314,9 +319,9 @@ public class MainActivity extends AppCompatActivity {
                     switchAccelerometer.setEnabled(true);
                     switchOrientation.setEnabled(true);
                     switchGravity.setEnabled(true);
+                    camera.setEnabled(false);
 
                 }
-                camera.setEnabled(isChecked);
             }
         });
 
@@ -336,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
                     visualofstream.write(Long.toString(datestamp.getTime()) + " \t" + visualpath);
                     visualofstream.flush();
                     Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();
+
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
                 }
@@ -473,6 +479,15 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     visualofstream.write(Long.toString(datestamp.getTime()) + "\t" + visualpath + "\n");
                     visualofstream.flush();
+
+                    // Append pic count
+                    // Trying to avoid global variables, so instead read the string and append
+                    CharSequence temp = textPictureCount.getText();
+                    int count = Character.getNumericValue(textPictureCount.getText().charAt(temp.length()-1));
+                    count++;
+                    String updatedText = temp.subSequence(0,temp.length()-1).toString() + Integer.toString(count);
+                    textPictureCount.setText(updatedText);
+
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
                 }
