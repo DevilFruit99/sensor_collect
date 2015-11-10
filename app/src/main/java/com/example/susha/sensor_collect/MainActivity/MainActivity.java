@@ -31,7 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.example.susha.sensor_collect.GUI.GUI;
+import com.example.susha.sensor_collect.GUI.MainScreen;
 import com.example.susha.sensor_collect.LogRunnable;
 import com.example.susha.sensor_collect.MyLocationListener;
 import com.example.susha.sensor_collect.R;
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Initialize GUI
-        final GUI sensorCollectGUI = new GUI(this);
+        final MainScreen sensorCollectGUI = new MainScreen(this);
 
         //saves output file location. /data/data/com.example.susha.sensor_collect/files
         sensorCollectGUI.setOutputText(getBaseContext().getFilesDir().toString());
