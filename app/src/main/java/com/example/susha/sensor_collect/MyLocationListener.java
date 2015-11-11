@@ -18,41 +18,35 @@ import java.util.Date;
  */
 public class MyLocationListener implements LocationListener{
 
-    public static double latitude;
-    public static double longitude;
+    public static double mlongitude;
+    public static double mlatitude;
     private File gps;
     private BufferedWriter gpsofstream;
 
-
-    @Override
-    public void onLocationChanged(Location loc) {
-        Double mlongitude = loc.getLongitude();
-        Double mlatitude = loc.getLatitude();
-        longitude = mlongitude;
-        latitude = mlatitude;
-
+    public MyLocationListener() {
         gps = new File(MainActivity.SessionDir + File.separator + "gps.txt");
-        if (!gps.exists()) {
-            try {
-                gpsofstream = new BufferedWriter(new FileWriter(gps));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         try {
-            gpsofstream.write(Long.toString(new Date().getTime()) + "\t" + mlatitude + " " + mlongitude + "\n");
-            gpsofstream.flush();
+            gpsofstream = new BufferedWriter(new FileWriter(gps));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static double getLongitude() {
-        return longitude;
-    }
 
-    public static double getLatitude() {
-        return latitude;
+    @Override
+    public void onLocationChanged(Location loc) {
+        mlongitude = loc.getLongitude();
+        mlatitude = loc.getLatitude();
+
+
+
+        try {
+            String add = Long.toString(new Date().getTime()) + "\t" + mlatitude + " " + mlongitude + "\n";
+            gpsofstream.write(add);
+            gpsofstream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

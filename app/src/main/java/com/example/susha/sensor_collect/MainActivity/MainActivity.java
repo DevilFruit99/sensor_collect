@@ -205,12 +205,6 @@ public class MainActivity extends AppCompatActivity {
                             gravityofstream = new BufferedWriter(new FileWriter(gravity));
                         }
 
-                        // Iterate through the toBeScanned list for MediaScannerConnection
-                        String[] toBeScannedStr = new String[toBeScanned.size()];
-                        toBeScannedStr = toBeScanned.toArray(toBeScannedStr);
-                        MediaScannerConnection.scanFile(MainActivity.this, toBeScannedStr, null, null);
-
-
                         visualpath = SessionDir.getAbsolutePath();
 
                         // Disable the switches after recording.
@@ -235,6 +229,10 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getBaseContext(), "Failed to write to Summary file.txt", Toast.LENGTH_SHORT).show();
                         }
 
+                        // Iterate through the toBeScanned list for MediaScannerConnection
+                        String[] toBeScannedStr = new String[toBeScanned.size()];
+                        toBeScannedStr = toBeScanned.toArray(toBeScannedStr);
+                        MediaScannerConnection.scanFile(MainActivity.this, toBeScannedStr, null, null);
 
                     } catch (IOException e) {
                         e.printStackTrace();
