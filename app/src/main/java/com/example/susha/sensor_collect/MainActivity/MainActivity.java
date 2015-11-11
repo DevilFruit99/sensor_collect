@@ -1,6 +1,7 @@
 package com.example.susha.sensor_collect.MainActivity;
 
 import android.Manifest;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaScannerConnection;
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private String tone;
     private String visualpath;
     private String appDirName = "BluePrint";
-    private File SessionDir;
+    public static File SessionDir;
 
     //textPictureCount field required for onActivityResult. Temp workaround
     private TextView textPictureCount;
@@ -152,9 +153,6 @@ public class MainActivity extends AppCompatActivity {
                             SessionDir.mkdir();
                         }
                         run = false;
-                        summaryfile = new File(SessionDir + File.separator + "Summary file.txt");
-                        summaryofstream = new BufferedWriter(new FileWriter(summaryfile));
-                        fillSummary();
 
                         // Create a list of what is to be checked (MediaScannerConnection list)
                         ArrayList<String> toBeScanned = new ArrayList<String>();
@@ -217,6 +215,26 @@ public class MainActivity extends AppCompatActivity {
 
                         // Disable the switches after recording.
                         sensorCollectGUI.disableSwitches();
+
+
+                        /* Use the LocationManager class to obtain GPS locations */
+                        LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                        LocationListener mlocListener = new MyLocationListener();
+                        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+
+                        //Make summary file
+                        summaryfile = new File(SessionDir + File.separator + "Summary file.txt");
+                        summaryofstream = new BufferedWriter(new FileWriter(summaryfile));
+
+                        Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        String add = Long.toString(new Date().getTime()) + "\t" + location.getLatitude() + " " + location.getLongitude() + "\n" ;
+                        try {
+                            summaryofstream.write(add);
+                            summaryofstream.flush();
+                        } catch (IOException e) {
+                            Toast.makeText(getBaseContext(), "Failed to write to Summary file.txt", Toast.LENGTH_SHORT).show();
+                        }
+
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -289,42 +307,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    private void fillSummary() {
-
-        String gps = "";
-        LocationManager mlocManager = null;
-        LocationListener mlocListener;
-        mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mlocListener = new MyLocationListener();
-/*
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestGPSPermission();
-        }*/
-        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
-
-        if (mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            if(MyLocationListener.latitude>0)
-            {
-                gps=MyLocationListener.latitude+"\t"+MyLocationListener.longitude;
-            }
-            else
-            {
-                gps = "gps not ready";
-            }
-        } else {
-            //et_field_name.setText("GPS is not turned on...");
-            Toast.makeText(getBaseContext(), "GPS not turned on", Toast.LENGTH_SHORT).show();
-        }
-        String add = Long.toString(new Date().getTime()) + "\t" + gps + "\n";
-
-        try {
-            summaryofstream.write(add);
-            summaryofstream.flush();
-        } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Failed to write to Summary file.txt", Toast.LENGTH_SHORT).show();
-        }
     }
 
     /*
