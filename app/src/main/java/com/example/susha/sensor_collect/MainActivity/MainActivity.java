@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
+    final long minGPSTime = 10*1000; //1000 miliseconds, 10 muiltiplier = 10 seconds
 
     private static final int REQUEST_LOC=0;
     @Override
@@ -131,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
                 sensorCollectGUI.setToggleText("Recording");
                 run = isChecked;
                 if (isChecked) {
+                    String summaryFileText = "";
                     //Data file creation
                     try {
 
@@ -204,6 +206,15 @@ public class MainActivity extends AppCompatActivity {
                             toBeScanned.add(SessionDir + File.separator + "gravity.txt");
                             gravityofstream = new BufferedWriter(new FileWriter(gravity));
                         }
+                        //GPS ENABLE SWITCH NOT IMPLEMENTED. REPLACE TRUE WITH METHOD
+                        // PLACE THESE IN CONTENTS
+                        /* Use the LocationManager class to obtain GPS locations */
+                        LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                        LocationListener mlocListener = new MyLocationListener();
+                        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minGPSTime, 0, mlocListener);
+                        if (true) {
+                            toBeScanned.add(SessionDir + File.separator + "gps.txt");
+                        }
 
                         visualpath = SessionDir.getAbsolutePath();
 
@@ -211,23 +222,38 @@ public class MainActivity extends AppCompatActivity {
                         sensorCollectGUI.disableSwitches();
 
 
-                        /* Use the LocationManager class to obtain GPS locations */
-                        LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-                        LocationListener mlocListener = new MyLocationListener();
-                        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+
 
                         //Make summary file
                         summaryfile = new File(SessionDir + File.separator + "Summary file.txt");
                         summaryofstream = new BufferedWriter(new FileWriter(summaryfile));
 
+                        String s="Debug:";
+                        s += "\n Device ID: " + tm.getDeviceId();
+                        s += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
+                        s += "\n OS API Level: " + android.os.Build.VERSION.SDK_INT;
+                        s += "\n Device: " + android.os.Build.DEVICE;
+                        s += "\n Model (and Product): " + android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
+
+
                         Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                        String add = Long.toString(new Date().getTime()) + "\t" + location.getLatitude() + " " + location.getLongitude() + "\n" ;
                         try {
-                            summaryofstream.write(add);
+                            summaryFileText = Long.toString(new Date().getTime()) + "\t" + location.getLatitude() + " " + location.getLongitude() + "\n" ;
+                        }
+                        catch (NullPointerException e){
+                            summaryFileText = Long.toString(new Date().getTime()) + "\t" +"0.0 0.0" + "\n";
+                            Toast.makeText(getBaseContext(), "GPS off or not ready.", Toast.LENGTH_SHORT).show();
+                        }
+                        summaryFileText += s;
+
+                        try {
+                            summaryofstream.write(summaryFileText);
                             summaryofstream.flush();
                         } catch (IOException e) {
                             Toast.makeText(getBaseContext(), "Failed to write to Summary file.txt", Toast.LENGTH_SHORT).show();
                         }
+
+
 
                         // Iterate through the toBeScanned list for MediaScannerConnection
                         String[] toBeScannedStr = new String[toBeScanned.size()];

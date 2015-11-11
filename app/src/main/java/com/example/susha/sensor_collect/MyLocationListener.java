@@ -38,8 +38,6 @@ public class MyLocationListener implements LocationListener{
         mlongitude = loc.getLongitude();
         mlatitude = loc.getLatitude();
 
-
-
         try {
             String add = Long.toString(new Date().getTime()) + "\t" + mlatitude + " " + mlongitude + "\n";
             gpsofstream.write(add);
