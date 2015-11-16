@@ -2,10 +2,12 @@ package com.example.susha.sensor_collect;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaScannerConnection;
+import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -112,6 +114,9 @@ public class MainActivity extends AppCompatActivity {
     private String visualpath;
     private String appDirName = "BluePrint";
     private File SessionDir;
+
+    private Thread myThread;
+    private LogRunnable myLogRunnable;
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
@@ -300,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
                     startRecord();
                     output2.setText("Recording data...");
                 } else {
+                    myLogRunnable.cleanThread();
                     //input.setFocusable(true);
                     input.setText("");
                     input.setHint("New session name...");
@@ -319,6 +325,9 @@ public class MainActivity extends AppCompatActivity {
                     switchAccelerometer.setEnabled(true);
                     switchOrientation.setEnabled(true);
                     switchGravity.setEnabled(true);
+
+
+
                     camera.setEnabled(false);
 
                 }
@@ -464,8 +473,10 @@ public class MainActivity extends AppCompatActivity {
         boolean cheat[] = new boolean[1];
         cheat[0] = run;
         //new Thread(new LogRunnable(MainActivity.this, inertiaofstream, cheat)).start();
-        new Thread(new LogRunnable(MainActivity.this, gyroscopeofstream,
-                magneticofstream, accelerometerofstream, orientationofstream, gravityofstream, cheat)).start();
+        myLogRunnable = new LogRunnable(MainActivity.this, gyroscopeofstream,
+                magneticofstream, accelerometerofstream, orientationofstream, gravityofstream, cheat);
+       myThread= new Thread(myLogRunnable);
+        myThread.start();
     }
 
     @Override
@@ -718,4 +729,6 @@ public class MainActivity extends AppCompatActivity {
 
         return mediaFile;
     }
+
+
 }
