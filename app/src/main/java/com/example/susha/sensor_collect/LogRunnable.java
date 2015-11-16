@@ -1,10 +1,12 @@
 package com.example.susha.sensor_collect;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -64,6 +66,7 @@ public class LogRunnable implements Runnable{
         run = value[0];
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     public void run() {
 
@@ -79,9 +82,9 @@ public class LogRunnable implements Runnable{
             currentDevice.add(mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION));
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null)
             currentDevice.add(mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
-        mHandlerThread = new HandlerThread("InertiaLogListener");
+        /*mHandlerThread = new HandlerThread("InertiaLogListener");
         mHandlerThread.start();
-        Handler handler = new Handler(mHandlerThread.getLooper());
+        Handler handler = new Handler(mHandlerThread.getLooper());*/
 
 
         mListener = new SensorEventListener() {
@@ -176,9 +179,9 @@ public class LogRunnable implements Runnable{
         if (mSensorManager != null) {
             mSensorManager.unregisterListener(mListener);
         }
-
+/*
         if (mHandlerThread.isAlive())
-            mHandlerThread.quit();
+            mHandlerThread.quit();*/
 
 
         //Flush and close file stream
