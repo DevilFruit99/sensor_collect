@@ -201,9 +201,6 @@ public class MainActivity extends AppCompatActivity {
                             fileHandler.fillSummaryWithoutGPS();
                         }
 
-                        fileHandler.invokeMediaScanner();
-
-
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -217,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     myLogRunnable.cleanThread();
                     sensorCollectGUI.resetGUI();
+                    //Update contents of files for MTP connection
+                    fileHandler.invokeMediaScanner();
 
                     //Remove GPS service
                     mlocManager.removeUpdates(mlocListener);

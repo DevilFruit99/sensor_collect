@@ -25,40 +25,6 @@ public class FIleHandler {
     private File gravity;
 
 
-    //
-    // TEMP GETTERS FOR BUFFEREDWRITERS, WILL BE REPLACED IN LATER ITERATION.
-    //e
-    public BufferedWriter getGyroscopeofstream() {
-        return gyroscopeofstream;
-    }
-
-    public BufferedWriter getMagneticofstream() {
-        return magneticofstream;
-    }
-
-    public BufferedWriter getAccelerometerofstream() {
-        return accelerometerofstream;
-    }
-
-    public BufferedWriter getOrientationofstream() {
-        return orientationofstream;
-    }
-
-    public BufferedWriter getGravityofstream() {
-        return gravityofstream;
-    }
-
-    public BufferedWriter getSummaryofstream() {
-        return summaryofstream;
-    }
-
-    public BufferedWriter getWifiofstream() {
-        return wifiofstream;
-    }
-
-    public BufferedWriter getVisualofstream() {
-        return visualofstream;
-    }
 
     private BufferedWriter gyroscopeofstream;
     private BufferedWriter magneticofstream;
@@ -147,7 +113,7 @@ public class FIleHandler {
         s += "\n OS API Level: " + android.os.Build.VERSION.SDK_INT;
         s += "\n Device: " + android.os.Build.DEVICE;
         s += "\n Model (and Product): " + android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
-
+        summaryFileText+=s;
         try {
             summaryofstream.write(summaryFileText);
             summaryofstream.flush();
@@ -166,7 +132,7 @@ public class FIleHandler {
         s += "\n OS API Level: " + android.os.Build.VERSION.SDK_INT;
         s += "\n Device: " + android.os.Build.DEVICE;
         s += "\n Model (and Product): " + android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
-
+        summaryFileText+=s;
         try {
             summaryofstream.write(summaryFileText);
             summaryofstream.flush();
@@ -194,5 +160,44 @@ public class FIleHandler {
         wifiofstream.flush();
     }
 
+
+
+
+
+
+    //
+    // TEMP GETTERS FOR BUFFEREDWRITERS, WILL BE REPLACED IN LATER ITERATION.
+    //e
+    public BufferedWriter getGyroscopeofstream() {
+        return gyroscopeofstream;
+    }
+
+    public BufferedWriter getMagneticofstream() {
+        return magneticofstream;
+    }
+
+    public BufferedWriter getAccelerometerofstream() {
+        return accelerometerofstream;
+    }
+
+    public BufferedWriter getOrientationofstream() {
+        return orientationofstream;
+    }
+
+    public BufferedWriter getGravityofstream() {
+        return gravityofstream;
+    }
+
+    public BufferedWriter getSummaryofstream() {
+        return summaryofstream;
+    }
+
+    public BufferedWriter getWifiofstream() {
+        return wifiofstream;
+    }
+
+    public BufferedWriter getVisualofstream() {
+        return visualofstream;
+    }
 
 }
