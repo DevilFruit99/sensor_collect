@@ -54,7 +54,7 @@ public class LogRunnable implements Runnable{
     }
 
     public LogRunnable(Context context, BufferedWriter gyroscopeofstream, BufferedWriter magneticofstream,
-                BufferedWriter accelerometerofstream, BufferedWriter orientationofstream, BufferedWriter gravityofstream, boolean[] value) {
+                       BufferedWriter accelerometerofstream, BufferedWriter orientationofstream, BufferedWriter gravityofstream, boolean[] value) {
         mContext = context;
         this.gyroscopeofstream = gyroscopeofstream;
         this.magneticofstream = magneticofstream;
