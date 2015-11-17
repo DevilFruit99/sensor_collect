@@ -13,6 +13,8 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.susha.sensor_collect.FileHandler.FIleHandler;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +35,7 @@ public class LogRunnable implements Runnable{
     private FileOutputStream mFileStream = null;
     private SensorEventListener mListener;
     private HandlerThread mHandlerThread;
+    private FIleHandler fileHandler;
     private BufferedWriter inertiaofstream;
 
     private BufferedWriter gyroscopeofstream;
@@ -53,14 +56,15 @@ public class LogRunnable implements Runnable{
         run = value[0];
     }
 
-    public LogRunnable(Context context, BufferedWriter gyroscopeofstream, BufferedWriter magneticofstream,
-                       BufferedWriter accelerometerofstream, BufferedWriter orientationofstream, BufferedWriter gravityofstream, boolean[] value) {
+    public LogRunnable(Context context, FIleHandler fileHandler, boolean[] value) {
         mContext = context;
-        this.gyroscopeofstream = gyroscopeofstream;
-        this.magneticofstream = magneticofstream;
-        this.accelerometerofstream = accelerometerofstream;
-        this.orientationofstream = orientationofstream;
-        this.gravityofstream = gravityofstream;
+        this.fileHandler = fileHandler;
+
+        this.gyroscopeofstream = fileHandler.getGyroscopeofstream();
+        this.magneticofstream = fileHandler.getMagneticofstream();
+        this.accelerometerofstream = fileHandler.getAccelerometerofstream();
+        this.orientationofstream = fileHandler.getOrientationofstream();
+        this.gravityofstream = fileHandler.getGravityofstream();
         //inertiaofstream = gyroscopeofstream;
 
         run = value[0];
