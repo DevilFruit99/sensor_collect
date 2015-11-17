@@ -98,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
     final long minGPSTime = 10*1000; //1000 miliseconds, 10 muiltiplier = 10 seconds
 
+    LocationListener mlocListener;
+    LocationManager mlocManager;
     private static final int REQUEST_LOC=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +123,9 @@ public class MainActivity extends AppCompatActivity {
         scan = wifiManager.createWifiLock("expScan");
         tone = "test1.mp3";
 
-
+        //init gps
+        //final LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        //final LocationListener mlocListener = new MyLocationListener(this);
         //begin begin recording
         sensorCollectGUI.getToggle().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -211,8 +215,8 @@ public class MainActivity extends AppCompatActivity {
                         //GPS ENABLE SWITCH NOT IMPLEMENTED. REPLACE TRUE WITH METHOD
                         // PLACE THESE IN CONTENTS
                         /* Use the LocationManager class to obtain GPS locations */
-                        LocationManager mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-                        LocationListener mlocListener = new MyLocationListener();
+                        mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                        mlocListener = new MyLocationListener(MainActivity.this);
                         mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minGPSTime, 0, mlocListener);
                         if (true) {
                             toBeScanned.add(SessionDir + File.separator + "gps.txt");
@@ -275,6 +279,10 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     myLogRunnable.cleanThread();
                     sensorCollectGUI.resetGUI();
+
+                    //Remove GPS service
+                    mlocManager.removeUpdates(mlocListener);
+
                 }
             }
         });
