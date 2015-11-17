@@ -33,6 +33,7 @@ import android.widget.Toast;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 
+import com.example.susha.sensor_collect.FileHandler.FIleHandler;
 import com.example.susha.sensor_collect.GUI.MainScreen;
 import com.example.susha.sensor_collect.LogRunnable;
 import com.example.susha.sensor_collect.MyLocationListener;
@@ -63,23 +64,6 @@ public class MainActivity extends AppCompatActivity {
     private Thread myThread;
     private Thread recordingThread;
     private LogRunnable myLogRunnable;
-
-    private File gyroscope;
-    private File magnetic;
-    private File accelerometer;
-    private File orientation;
-    private File gravity;
-    private BufferedWriter gyroscopeofstream;
-    private BufferedWriter magneticofstream;
-    private BufferedWriter accelerometerofstream;
-    private BufferedWriter orientationofstream;
-    private BufferedWriter gravityofstream;
-    private BufferedWriter summaryofstream;
-    private BufferedWriter wifiofstream;
-    private BufferedWriter visualofstream;
-    private File summaryfile;
-    private File wififile;
-    private File visualfile;
     private Uri fileUri;
     private Date datestamp;
     private Date audioDateStamp;
@@ -90,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private String visualpath;
     private String appDirName = "BluePrint";
     public static File SessionDir;
+    private FIleHandler fileHandler;
 
     //textPictureCount field required for onActivityResult. Temp workaround
     private TextView textPictureCount;
@@ -105,8 +90,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Initialize GUI
+
+        //Initialize GUI object
         final MainScreen sensorCollectGUI = new MainScreen(this);
+
+        //Init fileHandle
+        fileHandler = new FIleHandler(MainActivity.this);
 
         //saves output file location. /data/data/com.example.susha.sensor_collect/files
         sensorCollectGUI.setOutputText(getBaseContext().getFilesDir().toString());
@@ -159,56 +148,33 @@ public class MainActivity extends AppCompatActivity {
                         }
                         run = false;
 
-                        // Create a list of what is to be checked (MediaScannerConnection list)
-                        ArrayList<String> toBeScanned = new ArrayList<String>();
-                        toBeScanned.add(SessionDir + File.separator + "Summary file.txt");
-
-                        // Init all bufferWriter objects to null, letting ifChecked modify them
-                        wifiofstream = null;
-                        visualofstream = null;
-                        gyroscopeofstream = null;
-                        magneticofstream = null;
-                        accelerometerofstream = null;
-                        orientationofstream = null;
-                        gravityofstream = null;
+                        // Set streams to null
+                        fileHandler.setStreamsNull();
 
                         // Check switches
                         if (sensorCollectGUI.getSwitchWifiStatus()) {
-                            wififile = new File(SessionDir + File.separator + "wifi.txt");
-                            toBeScanned.add(SessionDir + File.separator + "wifi.txt");
-                            wifiofstream = new BufferedWriter(new FileWriter(wififile));
+                            fileHandler.createWifi(SessionDir + File.separator + "wifi.txt");
                         }
                         if (sensorCollectGUI.getSwitchVisualStatus()) {
-                            visualfile = new File(SessionDir + File.separator + "visual.txt");
-                            toBeScanned.add(SessionDir + File.separator + "visual.txt");
-                            visualofstream = new BufferedWriter(new FileWriter(visualfile));
+                            fileHandler.createVisual(SessionDir + File.separator + "visual.txt");
                             sensorCollectGUI.getCamera().setEnabled(true);
                         }
                         if (sensorCollectGUI.getSwitchGyroscopeStatus()) {
-                            gyroscope = new File(SessionDir + File.separator + input + "gyroscope.txt");
-                            toBeScanned.add(SessionDir + File.separator + "gyroscope.txt");
-                            gyroscopeofstream = new BufferedWriter(new FileWriter(gyroscope)); //program crashes here
+                            fileHandler.createGyro(SessionDir + File.separator + input + "gyroscope.txt");
                         }
                         if (sensorCollectGUI.getSwitchMagneticStatus()) {
-                            magnetic = new File(SessionDir + File.separator + input + "magnetic.txt");
-                            toBeScanned.add(SessionDir + File.separator + "magnetic.txt");
-                            magneticofstream = new BufferedWriter(new FileWriter(magnetic));
+                            fileHandler.createMagnetic(SessionDir + File.separator + input + "magnetic.txt");
                         }
                         if (sensorCollectGUI.getSwitchAccelerometerStatus()) {
-                            accelerometer = new File(SessionDir + File.separator + input + "accelerometer.txt");
-                            toBeScanned.add(SessionDir + File.separator + "accelerometer.txt");
-                            accelerometerofstream = new BufferedWriter(new FileWriter(accelerometer));
+                            fileHandler.createAccelerometer(SessionDir + File.separator + input + "accelerometer.txt");
                         }
                         if (sensorCollectGUI.getSwitchOrientationStatus()) {
-                            orientation = new File(SessionDir + File.separator + input + "orientation.txt");
-                            toBeScanned.add(SessionDir + File.separator + "orientation.txt");
-                            orientationofstream = new BufferedWriter(new FileWriter(orientation));
+                            fileHandler.createOrientation(SessionDir + File.separator + input + "orientation.txt");
                         }
                         if (sensorCollectGUI.getSwitchGravityStatus()) {
-                            gravity = new File(SessionDir + File.separator + input + "gravity.txt");
-                            toBeScanned.add(SessionDir + File.separator + "gravity.txt");
-                            gravityofstream = new BufferedWriter(new FileWriter(gravity));
+                            fileHandler.createGravity(SessionDir + File.separator + input + "gravity.txt");
                         }
+
                         //GPS ENABLE SWITCH NOT IMPLEMENTED. REPLACE TRUE WITH METHOD
                         // PLACE THESE IN CONTENTS
                         /* Use the LocationManager class to obtain GPS locations */
@@ -216,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                         mlocListener = new MyLocationListener(MainActivity.this);
                         mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minGPSTime, 0, mlocListener);
                         if (true) {
-                            toBeScanned.add(SessionDir + File.separator + "gps.txt");
+                            fileHandler.createGPS(SessionDir + File.separator + "gps.txt");
                         }
 
                         visualpath = SessionDir.getAbsolutePath();
@@ -224,44 +190,16 @@ public class MainActivity extends AppCompatActivity {
                         // Disable the switches after recording.
                         sensorCollectGUI.disableSwitches();
 
-
-
-
                         //Make summary file
-                        summaryfile = new File(SessionDir + File.separator + "Summary file.txt");
-                        summaryofstream = new BufferedWriter(new FileWriter(summaryfile));
-
-                        String s="Debug:";
-                        s += "\n Device ID: " + tm.getDeviceId();
-                        s += "\n OS Version: " + System.getProperty("os.version") + "(" + android.os.Build.VERSION.INCREMENTAL + ")";
-                        s += "\n OS API Level: " + android.os.Build.VERSION.SDK_INT;
-                        s += "\n Device: " + android.os.Build.DEVICE;
-                        s += "\n Model (and Product): " + android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
-
-
-                        Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        fileHandler.createSummary(SessionDir + File.separator + "Summary file.txt");
                         try {
-                            summaryFileText = Long.toString(new Date().getTime()) + "\t" + location.getLatitude() + " " + location.getLongitude() + "\n" ;
+                            Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            location.getLatitude();
+                            fileHandler.fillSummaryWithGPS(location.getLatitude(), location.getLongitude());
                         }
                         catch (NullPointerException e){
-                            summaryFileText = Long.toString(new Date().getTime()) + "\t" +"0.0 0.0" + "\n";
-                            Toast.makeText(getBaseContext(), "GPS off or not ready.", Toast.LENGTH_SHORT).show();
+                            fileHandler.fillSummaryWithoutGPS();
                         }
-                        summaryFileText += s;
-
-                        try {
-                            summaryofstream.write(summaryFileText);
-                            summaryofstream.flush();
-                        } catch (IOException e) {
-                            Toast.makeText(getBaseContext(), "Failed to write to Summary file.txt", Toast.LENGTH_SHORT).show();
-                        }
-
-
-
-                        // Iterate through the toBeScanned list for MediaScannerConnection
-                        String[] toBeScannedStr = new String[toBeScanned.size()];
-                        toBeScannedStr = toBeScanned.toArray(toBeScannedStr);
-                        MediaScannerConnection.scanFile(MainActivity.this, toBeScannedStr, null, null);
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -276,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     myLogRunnable.cleanThread();
                     sensorCollectGUI.resetGUI();
+                    //Update contents of files for MTP connection
+                    fileHandler.invokeMediaScanner();
 
                     //Remove GPS service
                     mlocManager.removeUpdates(mlocListener);
@@ -297,8 +237,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
 
                 try {
-                    visualofstream.write(Long.toString(datestamp.getTime()) + " \t" + visualpath);
-                    visualofstream.flush();
+                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath);
                     Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();
 
                 } catch (IOException e) {
@@ -330,8 +269,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
 
                 try {
-                    visualofstream.write(Long.toString(datestamp.getTime()) + " \t" + visualpath);
-                    visualofstream.flush();
+                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath);
                     Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
@@ -356,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
         boolean cheat[] = new boolean[1];
         cheat[0] = run;
         //new Thread(new LogRunnable(MainActivity.this, inertiaofstream, cheat)).start();
-        myLogRunnable = new LogRunnable(MainActivity.this, gyroscopeofstream,magneticofstream, accelerometerofstream, orientationofstream, gravityofstream, cheat);
+        myLogRunnable = new LogRunnable(MainActivity.this,fileHandler, cheat);
         myThread= new Thread(myLogRunnable);
         myThread.start();
     }
@@ -371,8 +309,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Image saved to:\n" +
                         visualpath, Toast.LENGTH_LONG).show();
                 try {
-                    visualofstream.write(Long.toString(datestamp.getTime()) + "\t" + visualpath + "\n");
-                    visualofstream.flush();
+                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + "\t" + visualpath + "\n");
 
                     // Append pic count
                     // Trying to avoid global variables, so instead read the string and append
@@ -398,8 +335,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Video saved to:\n" +
                         visualpath, Toast.LENGTH_LONG).show();
                 try {
-                    visualofstream.write(Long.toString(datestamp.getTime()) + "\t" + visualpath + "\n");
-                    visualofstream.flush();
+                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + "\t" + visualpath + "\n");
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
                 }
@@ -419,8 +355,7 @@ public class MainActivity extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(datestamp);
         File outputFile = new File(Environment.getExternalStoragePublicDirectory(appDirName), timeStamp + ".pcm");
         try {
-            visualofstream.write(Long.toString(datestamp.getTime()) + "\t" + outputFile.getPath() + "\n");
-            visualofstream.flush();
+            fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + "\t" + outputFile.getPath() + "\n");
         } catch (IOException e) {
             Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
         }
@@ -536,8 +471,7 @@ public class MainActivity extends AppCompatActivity {
         Date current = new Date();
         String add = Long.toString(current.getTime()) + "WiFi \t" + event[0] + "\t" + event[1] + "\t" + event[2] + "\n";
         try {
-            wifiofstream.write(add);
-            wifiofstream.flush();
+            fileHandler.wifiStreamWrite(add);
         } catch (IOException e) {
             Toast.makeText(getBaseContext(), "WiFi record fail; queue full", Toast.LENGTH_SHORT).show();
         }
