@@ -46,10 +46,9 @@
         android:clickable="true"
         android:textColor="#AAAAAA"
         android:enabled="true"
-        android:layout_below="@+id/switch1"
-        android:layout_alignRight="@+id/switchVisual"
-        android:layout_alignEnd="@+id/switchVisual"
-        android:layout_marginTop="29dp" />
+        android:layout_below="@+id/switchGPS"
+        android:layout_alignRight="@+id/switchGPS"
+        android:layout_alignEnd="@+id/switchGPS" />
 
     <Switch
         android:id="@+id/switchVisual"
@@ -170,5 +169,17 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPS"
+        android:id="@+id/switchGPS"
+        android:checked="true"
+        android:clickable="true"
+        android:layout_below="@+id/switch1"
+        android:layout_alignRight="@+id/switchMagnetic"
+        android:layout_alignEnd="@+id/switchMagnetic"
+        android:layout_marginTop="29dp" />
 
 </RelativeLayout>
