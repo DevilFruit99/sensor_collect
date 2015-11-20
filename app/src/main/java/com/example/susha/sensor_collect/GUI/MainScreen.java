@@ -21,6 +21,7 @@ public class MainScreen{
     private TextView output2;
     private TextView textPictureCount;
     private Switch toggle;
+    private Switch switchGPS;
     private Switch switchWifi;
     private Switch switchVisual;
     private Switch switchGyroscope;
@@ -52,6 +53,7 @@ public class MainScreen{
         textPictureCount = (TextView) this.activity.findViewById(R.id.textPictureCount);
 
         // Setup toggle switches
+        switchGPS = (Switch) this.activity.findViewById(R.id.switchGPS);
         switchWifi = (Switch) this.activity.findViewById(R.id.switchWifi);
         switchVisual = (Switch) this.activity.findViewById(R.id.switchVisual);
         switchGyroscope = (Switch) this.activity.findViewById(R.id.switchGyroscope);
@@ -66,7 +68,10 @@ public class MainScreen{
         toggle.setTextOn("Recording");
         textPictureCount.setText("# of pictures taken: 0");
 
-        // Initialize switches text
+        // Initialize switches text.
+        switchGPS.setTextOff("Disabled");
+        switchGPS.setTextOn("Enabled");
+        switchGPS.setChecked(true);
         switchWifi.setTextOff("Disabled");
         switchWifi.setTextOn("Enabled");
         switchWifi.setChecked(true);
@@ -99,6 +104,7 @@ public class MainScreen{
         switchAccelerometer.setEnabled(false);
         switchOrientation.setEnabled(false);
         switchGravity.setEnabled(false);
+        switchGPS.setEnabled(false);
     }
 
     public void resetGUI(){
@@ -121,6 +127,7 @@ public class MainScreen{
         switchAccelerometer.setEnabled(true);
         switchOrientation.setEnabled(true);
         switchGravity.setEnabled(true);
+        switchGPS.setEnabled(true);
         camera.setEnabled(false);
     }
     public void disablePulse(){
@@ -145,6 +152,10 @@ public class MainScreen{
 
     public boolean getSwitchVisualStatus() {
         return switchVisual.isChecked();
+    }
+
+    public boolean getSwitchGPSStatus() {
+        return switchGPS.isChecked();
     }
 
     public boolean getSwitchGyroscopeStatus() {

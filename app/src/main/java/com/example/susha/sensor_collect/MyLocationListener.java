@@ -28,14 +28,18 @@ public class MyLocationListener extends Service implements LocationListener{
     private File gps;
     private BufferedWriter gpsofstream;
     private final Context mContext;
+    private boolean writeGPS;
 
-    public MyLocationListener(Context context) {
+    public MyLocationListener(Context context,boolean writeGPS) {
         this.mContext = context;
-        gps = new File(MainActivity.SessionDir + File.separator + "gps.txt");
-        try {
-            gpsofstream = new BufferedWriter(new FileWriter(gps));
-        } catch (IOException e) {
-            e.printStackTrace();
+        this.writeGPS = writeGPS;
+        if(writeGPS) {
+            gps = new File(MainActivity.SessionDir + File.separator + "gps.txt");
+            try {
+                gpsofstream = new BufferedWriter(new FileWriter(gps));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -44,16 +48,18 @@ public class MyLocationListener extends Service implements LocationListener{
         mlongitude = loc.getLongitude();
         mlatitude = loc.getLatitude();
 
-        try {
-            String add = Long.toString(new Date().getTime()) + "\t" + mlatitude + " " + mlongitude + "\n";
-            gpsofstream.write(add);
-            gpsofstream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(writeGPS) {
+            try {
+                String add = Long.toString(new Date().getTime()) + "\t" + mlatitude + " " + mlongitude + "\n";
+                gpsofstream.write(add);
+                gpsofstream.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(mContext,
+                    "Debugging Purposes:\nLat: " + mlatitude + "\nLon: " + mlongitude,
+                    Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(mContext,
-                "Debugging Purposes:\nLat: " + mlatitude + "\nLon: " + mlongitude,
-                Toast.LENGTH_SHORT).show();
     }
 
 

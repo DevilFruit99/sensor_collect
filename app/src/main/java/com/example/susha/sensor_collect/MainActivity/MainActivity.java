@@ -1,16 +1,13 @@
 package com.example.susha.sensor_collect.MainActivity;
 
-import android.Manifest;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.MediaScannerConnection;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.design.widget.Snackbar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -27,25 +24,20 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.hardware.SensorManager;
-import android.os.AsyncTask;
 
-import com.example.susha.sensor_collect.FileHandler.FIleHandler;
+import com.example.susha.sensor_collect.FileHandler.FileHandler;
 import com.example.susha.sensor_collect.GUI.MainScreen;
 import com.example.susha.sensor_collect.LogRunnable;
 import com.example.susha.sensor_collect.MyLocationListener;
 import com.example.susha.sensor_collect.R;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
@@ -74,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private String visualpath;
     private String appDirName = "BluePrint";
     public static File SessionDir;
-    private FIleHandler fileHandler;
+    private FileHandler fileHandler;
 
     //textPictureCount field required for onActivityResult. Temp workaround
     private TextView textPictureCount;
@@ -95,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         final MainScreen sensorCollectGUI = new MainScreen(this);
 
         //Init fileHandle
-        fileHandler = new FIleHandler(MainActivity.this);
+        fileHandler = new FileHandler(MainActivity.this);
 
         //saves output file location. /data/data/com.example.susha.sensor_collect/files
         sensorCollectGUI.setOutputText(getBaseContext().getFilesDir().toString());
@@ -106,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
         final String input = sensorCollectGUI.getInputText();
         textPictureCount = sensorCollectGUI.getTextPictureCount();
-
         //WiFi set up
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         scan = wifiManager.createWifiLock("expScan");
@@ -175,18 +166,15 @@ public class MainActivity extends AppCompatActivity {
                             fileHandler.createGravity(SessionDir + File.separator + input + "gravity.txt");
                         }
 
-                        //GPS ENABLE SWITCH NOT IMPLEMENTED. REPLACE TRUE WITH METHOD
-                        // PLACE THESE IN CONTENTS
                         /* Use the LocationManager class to obtain GPS locations */
                         mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-                        mlocListener = new MyLocationListener(MainActivity.this);
+                        mlocListener = new MyLocationListener(MainActivity.this,sensorCollectGUI.getSwitchGPSStatus());
                         mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minGPSTime, 0, mlocListener);
-                        if (true) {
+                        if (sensorCollectGUI.getSwitchGPSStatus()) {
                             fileHandler.createGPS(SessionDir + File.separator + "gps.txt");
                         }
 
                         visualpath = SessionDir.getAbsolutePath();
-
                         // Disable the switches after recording.
                         sensorCollectGUI.disableSwitches();
 
