@@ -2,6 +2,8 @@ package com.example.susha.sensor_collect.GUI;
 
 import android.app.Activity;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,22 +23,16 @@ public class MainScreen{
     private TextView output2;
     private TextView textPictureCount;
     private Switch toggle;
-    private Switch switchGPS;
-    private Switch switchWifi;
-    private Switch switchVisual;
-    private Switch switchGyroscope;
-    private Switch switchMagnetic;
-    private Switch switchAccelerometer;
-    private Switch switchOrientation;
-    private Switch switchGravity;
     private Button pulse;
     private Button camera;
     private Button video;
+    private SharedPreferences SP;
 
     private View mLayout;
 
     public MainScreen(Activity activity){
         this.activity = activity;
+        SP = PreferenceManager.getDefaultSharedPreferences(activity);
         initGUI();
     }
 
@@ -52,15 +48,6 @@ public class MainScreen{
         output2 = (TextView) this.activity.findViewById(R.id.textView2);
         textPictureCount = (TextView) this.activity.findViewById(R.id.textPictureCount);
 
-        // Setup toggle switches
-        switchGPS = (Switch) this.activity.findViewById(R.id.switchGPS);
-        switchWifi = (Switch) this.activity.findViewById(R.id.switchWifi);
-        switchVisual = (Switch) this.activity.findViewById(R.id.switchVisual);
-        switchGyroscope = (Switch) this.activity.findViewById(R.id.switchGyroscope);
-        switchMagnetic = (Switch) this.activity.findViewById(R.id.switchMagnetic);
-        switchAccelerometer = (Switch) this.activity.findViewById(R.id.switchAccelerometer);
-        switchOrientation = (Switch) this.activity.findViewById(R.id.switchOrientation);
-        switchGravity = (Switch) this.activity.findViewById(R.id.switchGravity);
 
         //Constant initialization
         input.setHint("Session name");
@@ -68,43 +55,11 @@ public class MainScreen{
         toggle.setTextOn("Recording");
         textPictureCount.setText("# of pictures taken: 0");
 
-        // Initialize switches text.
-        switchGPS.setTextOff("Disabled");
-        switchGPS.setTextOn("Enabled");
-        switchGPS.setChecked(true);
-        switchWifi.setTextOff("Disabled");
-        switchWifi.setTextOn("Enabled");
-        switchWifi.setChecked(true);
-        switchVisual.setTextOff("Disabled");
-        switchVisual.setTextOn("Enabled");
-        switchVisual.setChecked(true);
-        switchGyroscope.setTextOff("Disabled");
-        switchGyroscope.setTextOn("Enabled");
-        switchGyroscope.setChecked(true);
-        switchMagnetic.setTextOff("Disabled");
-        switchMagnetic.setTextOn("Enabled");
-        switchMagnetic.setChecked(true);
-        switchAccelerometer.setTextOff("Disabled");
-        switchAccelerometer.setTextOn("Enabled");
-        switchAccelerometer.setChecked(true);
-        switchOrientation.setTextOff("Disabled");
-        switchOrientation.setTextOn("Enabled");
-        switchOrientation.setChecked(true);
-        switchGravity.setTextOff("Disabled");
-        switchGravity.setTextOn("Enabled");
-        switchGravity.setChecked(true);
     }
 
-    public void disableSwitches(){
-        // Disable the switches after recording.
-        switchWifi.setEnabled(false);
-        switchVisual.setEnabled(false);
-        switchGyroscope.setEnabled(false);
-        switchMagnetic.setEnabled(false);
-        switchAccelerometer.setEnabled(false);
-        switchOrientation.setEnabled(false);
-        switchGravity.setEnabled(false);
-        switchGPS.setEnabled(false);
+
+    public void initSP(){
+        boolean test = SP.getBoolean("switchWifi",true);
     }
 
     public void resetGUI(){
@@ -119,15 +74,6 @@ public class MainScreen{
         output2.setText("");
         textPictureCount.setText("# of pictures taken: 0");
 
-        // Enable the switches after recording.
-        switchWifi.setEnabled(true);
-        switchVisual.setEnabled(true);
-        switchGyroscope.setEnabled(true);
-        switchMagnetic.setEnabled(true);
-        switchAccelerometer.setEnabled(true);
-        switchOrientation.setEnabled(true);
-        switchGravity.setEnabled(true);
-        switchGPS.setEnabled(true);
         camera.setEnabled(false);
     }
     public void disablePulse(){
@@ -151,31 +97,31 @@ public class MainScreen{
     }
 
     public boolean getSwitchVisualStatus() {
-        return switchVisual.isChecked();
+        return SP.getBoolean("switchVisual", true);
     }
 
     public boolean getSwitchGPSStatus() {
-        return switchGPS.isChecked();
+        return SP.getBoolean("switchGPS", true);
     }
 
     public boolean getSwitchGyroscopeStatus() {
-        return switchGyroscope.isChecked();
+        return SP.getBoolean("switchGyroscope", true);
     }
 
     public boolean getSwitchMagneticStatus() {
-        return switchMagnetic.isChecked();
+        return SP.getBoolean("switchMagnetic", true);
     }
 
     public boolean getSwitchAccelerometerStatus() {
-        return switchAccelerometer.isChecked();
+        return SP.getBoolean("switchAccelerometer",true);
     }
 
     public boolean getSwitchOrientationStatus() {
-        return switchOrientation.isChecked();
+        return SP.getBoolean("switchOrientation", true);
     }
 
     public boolean getSwitchGravityStatus() {
-        return switchGravity.isChecked();
+        return SP.getBoolean("switchGravity",true);
     }
 
     public Button getPulse() {
@@ -191,7 +137,7 @@ public class MainScreen{
     }
 
     public boolean getSwitchWifiStatus() {
-        return switchWifi.isChecked();
+        return SP.getBoolean("switchWifi",true);
     }
 
     public TextView getTextPictureCount() {

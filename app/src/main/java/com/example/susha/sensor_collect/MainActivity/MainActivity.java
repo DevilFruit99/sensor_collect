@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.example.susha.sensor_collect.FileHandler.FileHandler;
 import com.example.susha.sensor_collect.GUI.MainScreen;
+import com.example.susha.sensor_collect.GUI.Preferences;
 import com.example.susha.sensor_collect.LogRunnable;
 import com.example.susha.sensor_collect.MyLocationListener;
 import com.example.susha.sensor_collect.R;
@@ -175,8 +176,6 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         visualpath = SessionDir.getAbsolutePath();
-                        // Disable the switches after recording.
-                        sensorCollectGUI.disableSwitches();
 
                         //Make summary file
                         fileHandler.createSummary(SessionDir + File.separator + "Summary file.txt");
@@ -266,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
 
     //Recording thread (spawns child wifi recording thread and inertia recording thread)
     private void startRecord(boolean SwitchStatus) {
@@ -482,6 +482,9 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            //Init preference screen
+            Intent i = new Intent(this, Preferences.class);
+            startActivity(i);
             return true;
         }
 
