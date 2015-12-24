@@ -18,9 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Created by susha on 10/12/2015.
- */
 public class MyLocationListener extends Service implements LocationListener{
 
     public static double mlongitude;
