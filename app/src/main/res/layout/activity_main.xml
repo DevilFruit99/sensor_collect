@@ -139,10 +139,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Camera"
-        android:layout_marginBottom="67dp"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/switchGravity"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="28dp" />
 
     <Button
         android:id="@+id/button3"
