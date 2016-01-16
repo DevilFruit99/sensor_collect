@@ -3,6 +3,7 @@ package com.example.susha.sensor_collect.MainActivity;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -33,6 +34,7 @@ import com.example.susha.sensor_collect.GUI.Preferences;
 import com.example.susha.sensor_collect.LogRunnable;
 import com.example.susha.sensor_collect.MyLocationListener;
 import com.example.susha.sensor_collect.R;
+import com.example.susha.sensor_collect.Server.FTPTransfer;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -41,6 +43,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -203,7 +206,9 @@ public class MainActivity extends AppCompatActivity {
                     sensorCollectGUI.resetGUI();
                     //Update contents of files for MTP connection
                     fileHandler.invokeMediaScanner();
-
+                    //Upload files to server
+                    UploadAsync task = new UploadAsync();
+                    task.execute(SessionDir);
                     //Remove GPS service
                     mlocManager.removeUpdates(mlocListener);
 
@@ -264,6 +269,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+
+    class UploadAsync extends AsyncTask<File, Integer, Long> {
+
+        @Override
+        protected Long doInBackground(File... files) {
+            int count = files.length;
+            long totalSize = 0;
+            for (int i = 0; i < count; i++) {
+                totalSize += new FTPTransfer().uploadFile(files[i]);
+                publishProgress((int) ((i / (float) count) * 100));
+                //Escape early if cancel() is called
+                if (isCancelled()) break;
+            }
+            return totalSize;
+        }
+
+
+//        protected void onProgressUpdate(Integer... progress) {
+//            setProgressPercent(progress[0]);
+//        }
+
+        protected void onPostExecute(Long result) {
+            makeToast("Upload complete");
+        }
+    }
+
+    private void makeToast(String toastText) {
+        Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
     }
 
 
