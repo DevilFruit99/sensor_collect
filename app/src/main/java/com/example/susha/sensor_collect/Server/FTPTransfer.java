@@ -59,15 +59,21 @@ public class FTPTransfer {
             c.cd("/home/Server3/Blueprint/data/Android");
             String dstFile="/home/Server3/Blueprint/data/Android/"+srcFile.getName()+"/";
             c.mkdir(srcFile.getName());
+            c.cd(dstFile);
             for(File file: srcFile.listFiles()){
                 if(file.isDirectory()){
+                    c.mkdir(file.getName());
+                    for(File innerFile: file.listFiles()){
+                        c.put(innerFile.getAbsolutePath(),dstFile+"/"+file.getName(),ChannelSftp.OVERWRITE);
+
+                    }
+                    c.cd("..");
                     continue;
                 }
-
-                Log.i("sftp", file.getAbsolutePath());//TODO remove. just for testing
-                c.put(file.getAbsolutePath(),dstFile);//ERROR
+                Log.i("sftp", "uploading " + file.getName());//TODO remove. just for testing
+                c.put(file.getAbsolutePath(),dstFile,ChannelSftp.OVERWRITE);
             }
-
+            c.disconnect();
             //BAD IMPL: c.put(srcFile.getAbsolutePath(),"/home/Server3/Blueprint/Android");// TODO ideally would like to implement put(src,dest,monitor,mode);
             //mode can be OVERWRITE, RESUME, or APPEND
         } catch (JSchException e) {
