@@ -1,4 +1,4 @@
-package com.example.susha.sensor_collect;
+package com.example.susha.sensor_collect.Sensors;
 
 
 import android.content.Context;

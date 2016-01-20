@@ -1,18 +1,12 @@
 package com.example.susha.sensor_collect.MainActivity;
 
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.telephony.TelephonyManager;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
@@ -20,9 +14,15 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -31,9 +31,9 @@ import android.widget.Toast;
 import com.example.susha.sensor_collect.FileHandler.FileHandler;
 import com.example.susha.sensor_collect.GUI.MainScreen;
 import com.example.susha.sensor_collect.GUI.Preferences;
-import com.example.susha.sensor_collect.LogRunnable;
-import com.example.susha.sensor_collect.MyLocationListener;
 import com.example.susha.sensor_collect.R;
+import com.example.susha.sensor_collect.Sensors.LogRunnable;
+import com.example.susha.sensor_collect.Sensors.MyLocationListener;
 import com.example.susha.sensor_collect.Server.FTPTransfer;
 
 import java.io.BufferedOutputStream;
@@ -43,7 +43,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -207,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                     //Update contents of files for MTP connection
                     fileHandler.invokeMediaScanner();
                     //Upload files to server
-                    UploadAsync task = new UploadAsync();
+                    UploadAsync task = new UploadAsync(getBaseContext());
                     task.execute(SessionDir);
                     //Remove GPS service
                     mlocManager.removeUpdates(mlocListener);
@@ -273,13 +272,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     class UploadAsync extends AsyncTask<File, Integer, Long> {
+        Context context;
+        public UploadAsync(Context baseContext) {
+            context = baseContext;
+        }
 
         @Override
         protected Long doInBackground(File... files) {
             int count = files.length;
             long totalSize = 0;
             for (int i = 0; i < count; i++) {
-                totalSize += new FTPTransfer().uploadFile(files[i]);
+                totalSize += new FTPTransfer().uploadFile(files[i],context);
                 publishProgress((int) ((i / (float) count) * 100));
                 //Escape early if cancel() is called
                 if (isCancelled()) break;
