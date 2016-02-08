@@ -17,6 +17,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
@@ -34,6 +35,7 @@ import com.example.susha.sensor_collect.GUI.Preferences;
 import com.example.susha.sensor_collect.R;
 import com.example.susha.sensor_collect.Sensors.LogRunnable;
 import com.example.susha.sensor_collect.Sensors.MyLocationListener;
+import com.example.susha.sensor_collect.Sensors.WifiScan;
 import com.example.susha.sensor_collect.Server.FTPTransfer;
 
 import java.io.BufferedOutputStream;
@@ -48,6 +50,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -70,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
     private String appDirName = "BluePrint";
     public static File SessionDir;
     private FileHandler fileHandler;
+    private static Timer Wifitimer;
+    //private static TimerTask doAsynchronousTask;
+
+    public int testcount;
 
     //textPictureCount field required for onActivityResult. Temp workaround
     private TextView textPictureCount;
@@ -83,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_LOC=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        testcount = 0;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -202,6 +211,14 @@ public class MainActivity extends AppCompatActivity {
                     sensorCollectGUI.setOutput2Text("Recording data...");
                 } else {
                     myLogRunnable.cleanThread();
+                    //Stop timer on async wifi scan
+                    // TODO Check switch
+                    if(sensorCollectGUI.getSwitchWifiStatus()) {
+                        Wifitimer.cancel();
+                        Wifitimer.purge();
+                        Wifitimer = null;
+                    }
+
                     sensorCollectGUI.resetGUI();
                     //Update contents of files for MTP connection
                     fileHandler.invokeMediaScanner();
@@ -307,16 +324,31 @@ public class MainActivity extends AppCompatActivity {
 
     //Recording thread (spawns child wifi recording thread and inertia recording thread)
     private void startRecord(boolean SwitchStatus) {
-
-        if(SwitchStatus) {
-            new Thread(new Runnable() {
+        //check wifi switch status
+        if(SwitchStatus){
+            final Handler handler = new Handler();
+            Wifitimer = new Timer();
+            TimerTask doAsynchronousTask = new TimerTask() {
+                @Override
                 public void run() {
-                    while (run) {
-                    }
-                    wifiScan();
+                    handler.post(new Runnable() {
+                        public void run() {
+                            try {
+
+                                //Call async task to collect data
+                                //TODO remove. THE THREAD IS LEAKING/NOT STOPPING KEK
+                                new WifiScan(fileHandler,getBaseContext()).execute();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                            }
+                        }
+                    });
                 }
-            }).start();
+            };
+            Wifitimer.schedule(doAsynchronousTask, 0, 5000); //execute in every 5000 ms
         }
+
+
         boolean cheat[] = new boolean[1];
         cheat[0] = run;
         //new Thread(new LogRunnable(MainActivity.this, inertiaofstream, cheat)).start();
@@ -474,34 +506,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    //helper method to perform wifi scan
-    public final void wifiScan() {
-
-        scan.acquire(); //Acquire wifi lock
-        AP = wifiManager.getScanResults();  //scan vicinity
-        ScanResult[] event = new ScanResult[3]; //create record to store largest 3 signals
-        if (!AP.isEmpty())
-            for (int i = 0; i < 3 && !AP.isEmpty(); i++) {
-                ScanResult temp = AP.get(0);
-                for (ScanResult largest : AP) {
-                    if (largest.level > temp.level) {
-                        temp = largest;
-                    }
-                }
-                event[i] = temp;
-                AP.remove(temp);
-            }
-        //Record in file
-        Date current = new Date();
-        String add = Long.toString(current.getTime()) + "WiFi \t" + event[0] + "\t" + event[1] + "\t" + event[2] + "\n";
-        try {
-            fileHandler.wifiStreamWrite(add);
-        } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "WiFi record fail; queue full", Toast.LENGTH_SHORT).show();
-        }
-        scan.release();
     }
 
     @Override
