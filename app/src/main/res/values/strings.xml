@@ -4,4 +4,16 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="hostTextView">Host</string>
+
+    <string name="textview_text">SeekBarPreference test</string>
+    <string name="menu_settings">Settings</string>
+    <string name="settings_dialog_message">Non-default values may cause program to not work correctly!</string>
+    <string name="settings_summary_sensor">Current value is $1</string>
+    <string name="settings_summary_wifi">Current value is $1</string>
+    <string name="settings_summary_gps">Current value is $1</string>
+    <string name="settings_unit">ms</string>
+    <string name="settings_unit_sensor">us</string>
+    <string name="settings_title_sensor">Sensor Poll Rate</string>
+    <string name="settings_title_wifi">Wifi Poll Rate</string>
+    <string name="settings_title_gps">GPS Poll Rate</string>
 </resources>

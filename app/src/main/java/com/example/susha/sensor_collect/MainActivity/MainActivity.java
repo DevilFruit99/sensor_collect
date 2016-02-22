@@ -2,6 +2,7 @@ package com.example.susha.sensor_collect.MainActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.location.Location;
@@ -18,6 +19,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     public static File SessionDir;
     private FileHandler fileHandler;
     private static Timer Wifitimer;
+    private SharedPreferences SP;
     //private static TimerTask doAsynchronousTask;
 
     public int testcount;
@@ -84,7 +87,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
-    final long minGPSTime = 10*1000; //1000 miliseconds, 10 muiltiplier = 10 seconds
+    //final long minGPSTime = 10*1000; //1000 miliseconds, 10 muiltiplier = 10 seconds
+    private int wifiScanRate;
+    private int sensorScanRate;
 
     private LocationListener mlocListener;
     private LocationManager mlocManager;
@@ -94,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         testcount = 0;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SP = PreferenceManager.getDefaultSharedPreferences(this);
 
         //Initialize GUI object
         final MainScreen sensorCollectGUI = new MainScreen(this);
@@ -130,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
                     String summaryFileText = "";
                     //Data file creation
                     try {
+                        wifiScanRate = SP.getInt("SEEKBAR_VALUE_WIFI", 20000);
+                        sensorScanRate = SP.getInt("SEEKBAR_VALUE_SENSOR", 20000);
 
                         //app folder is setup
                         File ProjectDir = new File(Environment.getExternalStorageDirectory() + File.separator + appDirName);
@@ -181,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                         /* Use the LocationManager class to obtain GPS locations */
                         mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
                         mlocListener = new MyLocationListener(MainActivity.this,sensorCollectGUI.getSwitchGPSStatus());
-                        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minGPSTime, 0, mlocListener);
+                        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SP.getInt("SEEKBAR_VALUE_GPS", 20000), 0, mlocListener);
                         if (sensorCollectGUI.getSwitchGPSStatus()) {
                             fileHandler.createGPS(SessionDir + File.separator + "gps.txt");
                         }
@@ -334,9 +342,7 @@ public class MainActivity extends AppCompatActivity {
                     handler.post(new Runnable() {
                         public void run() {
                             try {
-
                                 //Call async task to collect data
-                                //TODO remove. THE THREAD IS LEAKING/NOT STOPPING KEK
                                 new WifiScan(fileHandler,getBaseContext()).execute();
                             } catch (Exception e) {
                                 // TODO Auto-generated catch block
@@ -345,14 +351,14 @@ public class MainActivity extends AppCompatActivity {
                     });
                 }
             };
-            Wifitimer.schedule(doAsynchronousTask, 0, 5000); //execute in every 5000 ms
+            Wifitimer.schedule(doAsynchronousTask, 0, wifiScanRate); //execute in every 5000 ms
         }
 
 
         boolean cheat[] = new boolean[1];
         cheat[0] = run;
         //new Thread(new LogRunnable(MainActivity.this, inertiaofstream, cheat)).start();
-        myLogRunnable = new LogRunnable(MainActivity.this,fileHandler, cheat);
+        myLogRunnable = new LogRunnable(MainActivity.this,fileHandler, cheat, sensorScanRate);
         myThread= new Thread(myLogRunnable);
         myThread.start();
     }

@@ -36,6 +36,7 @@ public class LogRunnable implements Runnable{
 
     private float[] mGravity;
     private float[] mGeomagnetic;
+    private int sensorScanRate;
     boolean run;
 
     /* Never used, will delete eventually
@@ -45,10 +46,11 @@ public class LogRunnable implements Runnable{
         run = value[0];
     }*/
 
-    public LogRunnable(Context context, FileHandler fileHandler, boolean[] value) {
+    public LogRunnable(Context context, FileHandler fileHandler, boolean[] value, int sensorScanRate) {
         mContext = context;
         this.fileHandler = fileHandler;
         run = value[0];
+        this.sensorScanRate = sensorScanRate;
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -147,7 +149,7 @@ public class LogRunnable implements Runnable{
             }
         };
         for (Sensor insert : currentDevice) {
-            mSensorManager.registerListener(mListener, insert, 20000,100);
+            mSensorManager.registerListener(mListener, insert, sensorScanRate,100);
         }
     }
 
