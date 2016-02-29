@@ -18,10 +18,12 @@ import java.util.Vector;
 
 public class FTPTransfer {
     Session session = null;
-    String user="Server3";
-    String host="<enter server ip address here";
+    private String user="";
+    private String host="";
+    private String pass = "";
     int port=22;
     public FTPTransfer(){
+
 
     }
     public long uploadFile(File srcFile, Context context){
@@ -32,7 +34,7 @@ public class FTPTransfer {
             // remove the hard coding and add UI screen to get credentials
             UserInfo ui = new MyUserInfo(context);
             //session.setUserInfo(ui);//Use this to prompt password
-            session.setPassword("<enter server's password here>");//hardcoded for testing
+            session.setPassword(pass);//hardcoded for testing
 
             // Avoid asking for key confirmation
             //TODO NOT SECURE! need to find better way
@@ -86,4 +88,13 @@ public class FTPTransfer {
         return size;
     }
 
+    public void setUser(String userName){
+        this.user = userName;
+    }
+    public void setHost(String host){
+        this.host=host;
+    }
+    public void setPass(String pass){
+        this.pass=pass;
+    }
 }
