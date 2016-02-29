@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
             int count = files.length;
             long totalSize = 0;
             for (int i = 0; i < count; i++) {
-                totalSize += new FTPTransfer().uploadFile(files[i],context);
+                totalSize += new FTPTransfer(SP).uploadFile(files[i],context);
                 publishProgress((int) ((i / (float) count) * 100));
                 //Escape early if cancel() is called
                 if (isCancelled()) break;

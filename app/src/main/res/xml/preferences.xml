@@ -66,4 +66,20 @@
             android:text="@string/settings_unit"
             android:title="@string/settings_title_gps" />
     </PreferenceCategory>
+    <PreferenceCategory
+        android:title="Server Details"
+        android:key="pref_key_server_settings">
+
+        <EditTextPreference
+            android:key="host"
+            android:title="Host Name"/>
+        <EditTextPreference
+            android:key="user"
+            android:title="User Name"/>
+        <EditTextPreference
+            android:key="pass"
+            android:title="Password"
+            android:inputType="textPassword"/>
+    </PreferenceCategory>
+
 </PreferenceScreen>

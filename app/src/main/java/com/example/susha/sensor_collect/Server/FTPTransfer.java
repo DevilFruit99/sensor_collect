@@ -1,7 +1,11 @@
 package com.example.susha.sensor_collect.Server;
 
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.EditTextPreference;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.jcraft.jsch.Channel;
@@ -22,19 +26,20 @@ public class FTPTransfer {
     private String host="";
     private String pass = "";
     int port=22;
-    public FTPTransfer(){
-
+    SharedPreferences SP;
+    public FTPTransfer(SharedPreferences SP){
+         this.SP=SP;
 
     }
     public long uploadFile(File srcFile, Context context){
         long size=0;
         JSch ssh = new JSch();
         try {
-            session = ssh.getSession(user,host,port);
+            session = ssh.getSession(getUser(),getHost(),port);
             // remove the hard coding and add UI screen to get credentials
             UserInfo ui = new MyUserInfo(context);
             //session.setUserInfo(ui);//Use this to prompt password
-            session.setPassword(pass);//hardcoded for testing
+            session.setPassword(getPass());//hardcoded for testing
 
             // Avoid asking for key confirmation
             //TODO NOT SECURE! need to find better way
@@ -88,13 +93,16 @@ public class FTPTransfer {
         return size;
     }
 
-    public void setUser(String userName){
-        this.user = userName;
+    public String getUser(){
+
+        return SP.getString("user", "defaultUser");
     }
-    public void setHost(String host){
-        this.host=host;
+    public String getHost(){
+        return SP.getString("host","defaultHost");
     }
-    public void setPass(String pass){
-        this.pass=pass;
+
+    public String getPass(){
+        return SP.getString("pass","defaultPass");
     }
+
 }
