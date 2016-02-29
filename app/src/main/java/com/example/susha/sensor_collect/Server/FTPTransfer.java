@@ -19,7 +19,7 @@ import java.util.Vector;
 public class FTPTransfer {
     Session session = null;
     String user="Server3";
-    String host="130.245.191.166";
+    String host="<enter server ip address here";
     int port=22;
     public FTPTransfer(){
 
@@ -32,7 +32,7 @@ public class FTPTransfer {
             // remove the hard coding and add UI screen to get credentials
             UserInfo ui = new MyUserInfo(context);
             //session.setUserInfo(ui);//Use this to prompt password
-            session.setPassword("LAB166");//hardcoded for testing
+            session.setPassword("<enter server's password here>");//hardcoded for testing
 
             // Avoid asking for key confirmation
             //TODO NOT SECURE! need to find better way
