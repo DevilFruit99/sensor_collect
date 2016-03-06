@@ -16,4 +16,6 @@
     <string name="settings_title_sensor">Sensor Poll Rate</string>
     <string name="settings_title_wifi">Wifi Poll Rate</string>
     <string name="settings_title_gps">GPS Poll Rate</string>
+    <string name="title_activity_record">RecordActivity</string>
+    <string name="title_activity_recording_screen">RecordingScreen</string>
 </resources>

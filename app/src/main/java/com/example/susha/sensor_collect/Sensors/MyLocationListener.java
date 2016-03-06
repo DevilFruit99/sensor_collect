@@ -10,7 +10,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import com.example.susha.sensor_collect.MainActivity.MainActivity;
+import com.example.susha.sensor_collect.Activities.MainActivity;
 
 import java.io.BufferedWriter;
 import java.io.File;
