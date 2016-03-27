@@ -30,10 +30,10 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
     private static final String androidns="http://schemas.android.com/apk/res/android";
 
     private SeekBar mSeekBar;
-    private TextView mSplashText,mValueText;
+    private TextView mSplashText,mValueText,mDefaultVale;
     private Context mContext;
 
-    private String mDialogMessage, mSuffix;
+    private String mDialogMessage, mSuffix,mDefaultValue;
     private int mDefault, mMax, mValue = 0;
     // ------------------------------------------------------------------------------------------
 
@@ -50,6 +50,11 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
         int mDialogMessageId = attrs.getAttributeResourceValue(androidns, "dialogMessage", 0);
         if(mDialogMessageId == 0) mDialogMessage = attrs.getAttributeValue(androidns, "dialogMessage");
         else mDialogMessage = mContext.getString(mDialogMessageId);
+
+        // Get string value for dialogMessage :
+        int mDefaultValueId = attrs.getAttributeResourceValue(androidns, "defaultValue", 0);
+        if(mDefaultValueId == 0) mDefaultValue = attrs.getAttributeValue(androidns, "defaultValue");
+        else mDefaultValue = mContext.getString(mDefaultValueId);
 
         // Get string value for suffix (text attribute in xml file) :
         int mSuffixId = attrs.getAttributeResourceValue(androidns, "text", 0);
@@ -72,13 +77,19 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
         LinearLayout.LayoutParams params;
         LinearLayout layout = new LinearLayout(mContext);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(6,6,6,6);
+        layout.setPadding(6, 6, 6, 6);
 
         mSplashText = new TextView(mContext);
         mSplashText.setPadding(30, 10, 30, 10);
         if (mDialogMessage != null)
             mSplashText.setText(mDialogMessage);
         layout.addView(mSplashText);
+
+        mDefaultVale = new TextView(mContext);
+        mDefaultVale.setPadding(30, 10, 30, 10);
+        if (mDefaultValue != null)
+            mDefaultVale.setText("Default value: " + mDefaultValue);
+        layout.addView(mDefaultVale);
 
         mValueText = new TextView(mContext);
         mValueText.setGravity(Gravity.CENTER_HORIZONTAL);

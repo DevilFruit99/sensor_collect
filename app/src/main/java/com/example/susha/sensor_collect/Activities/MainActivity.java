@@ -1,4 +1,4 @@
-package com.example.susha.sensor_collect.MainActivity;
+package com.example.susha.sensor_collect.Activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -206,6 +206,11 @@ public class MainActivity extends AppCompatActivity {
                         catch (NullPointerException e){
                             fileHandler.fillSummaryWithoutGPS();
                         }
+
+                        /*
+                        Create a new intent and switch activities
+                         */
+                        startActivity(new Intent(MainActivity.this,RecordingScreen.class));
 
                     } catch (IOException e) {
                         e.printStackTrace();
