@@ -38,15 +38,6 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pulse"
-        android:layout_alignTop="@+id/button2"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"/>
-
-    <Button
         android:id="@+id/button2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

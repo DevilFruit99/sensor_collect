@@ -129,30 +129,15 @@ public class MainActivity extends AppCompatActivity {
         //saves output file location. /data/data/com.example.susha.sensor_collect/files
         sensorCollectGUI.setOutputText(getBaseContext().getFilesDir().toString());
         //Disable these features
-        sensorCollectGUI.disablePulse();
         sensorCollectGUI.disableCamera();
         sensorCollectGUI.disableVideo();
         setupSensorListeners();
     }
 
     private void setupSensorListeners(){
-        initPulseListener();
         initCameraListener();
         initVideoListener();
         initToggleListener();
-    }
-
-    private void initPulseListener(){
-        //ultrasonic mp3 setup; spawn new thread
-        sensorCollectGUI.getPulse().setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    public void run() {
-                        //mpwork();
-                    }
-                }).start();
-            }
-        });
     }
 
     private void initCameraListener(){

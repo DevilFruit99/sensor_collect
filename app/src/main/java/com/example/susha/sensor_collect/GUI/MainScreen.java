@@ -23,7 +23,6 @@ public class MainScreen{
     private TextView output2;
     private TextView textPictureCount;
     private Switch toggle;
-    private Button pulse;
     private Button camera;
     private Button video;
     private SharedPreferences SP;
@@ -42,7 +41,6 @@ public class MainScreen{
         input = (EditText) this.activity.findViewById(R.id.editText);
         output = (TextView) this.activity.findViewById(R.id.textView);
         toggle = (Switch) this.activity.findViewById(R.id.switch1);
-        pulse = (Button) this.activity.findViewById(R.id.button);
         camera = (Button) this.activity.findViewById(R.id.button2);
         video = (Button) this.activity.findViewById(R.id.button3);
         output2 = (TextView) this.activity.findViewById(R.id.textView2);
@@ -75,9 +73,6 @@ public class MainScreen{
         textPictureCount.setText("# of pictures taken: 0");
 
         camera.setEnabled(false);
-    }
-    public void disablePulse(){
-        pulse.setEnabled(false);
     }
 
     public void disableCamera(){
@@ -122,10 +117,6 @@ public class MainScreen{
 
     public boolean getSwitchGravityStatus() {
         return SP.getBoolean("switchGravity",true);
-    }
-
-    public Button getPulse() {
-        return pulse;
     }
 
     public Button getCamera() {
