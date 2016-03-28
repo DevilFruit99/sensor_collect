@@ -94,6 +94,13 @@ public class MainActivity extends AppCompatActivity {
     private LocationListener mlocListener;
     private LocationManager mlocManager;
     private static final int REQUEST_LOC=0;
+
+    /**
+     * Change:Moved declaration out of onCreate() method to allow for modularization of sensorCollectGUI
+     * setup
+     */
+    private MainScreen sensorCollectGUI;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         testcount = 0;
@@ -102,149 +109,53 @@ public class MainActivity extends AppCompatActivity {
         SP = PreferenceManager.getDefaultSharedPreferences(this);
 
         //Initialize GUI object
-        final MainScreen sensorCollectGUI = new MainScreen(this);
+        sensorCollectGUI = new MainScreen(this);
+        setupSensorCollectGUI();
+
+        //Set Picture Count
+        textPictureCount = sensorCollectGUI.getTextPictureCount();
 
         //Init fileHandle
         fileHandler = new FileHandler(MainActivity.this);
 
-        //saves output file location. /data/data/com.example.susha.sensor_collect/files
-        sensorCollectGUI.setOutputText(getBaseContext().getFilesDir().toString());
-
-        sensorCollectGUI.disablePulse();
-        sensorCollectGUI.disableCamera();
-        sensorCollectGUI.disableVideo();
-
-        final String input = sensorCollectGUI.getInputText();
-        textPictureCount = sensorCollectGUI.getTextPictureCount();
         //WiFi set up
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         scan = wifiManager.createWifiLock("expScan");
         tone = "test1.mp3";
 
-        //begin begin recording
-        sensorCollectGUI.getToggle().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                // do something, the isChecked will be
-                // true if the switch is in the On position
-                //Get date for naming file
+    }
 
-                //output.setText(Environment.getExternalStoragePublicDirectory("Senior Design").toString());
+    private void setupSensorCollectGUI() {
+        //saves output file location. /data/data/com.example.susha.sensor_collect/files
+        sensorCollectGUI.setOutputText(getBaseContext().getFilesDir().toString());
+        //Disable these features
+        sensorCollectGUI.disablePulse();
+        sensorCollectGUI.disableCamera();
+        sensorCollectGUI.disableVideo();
+        setupSensorListeners();
+    }
 
-                sensorCollectGUI.setToggleText("Recording");
-                run = isChecked;
-                if (isChecked) {
-                    String summaryFileText = "";
-                    //Data file creation
-                    try {
-                        wifiScanRate = SP.getInt("SEEKBAR_VALUE_WIFI", 20000);
-                        sensorScanRate = SP.getInt("SEEKBAR_VALUE_SENSOR", 20000);
+    private void setupSensorListeners(){
+        initPulseListener();
+        initCameraListener();
+        initVideoListener();
+        initToggleListener();
+    }
 
-                        //app folder is setup
-                        File ProjectDir = new File(Environment.getExternalStorageDirectory() + File.separator + appDirName);
-
-                        if (!ProjectDir.exists()) {
-                            ProjectDir.mkdir();
-                        }
-                        Calendar calNow = Calendar.getInstance();
-                        Date current = new Date();
-                        calNow.setTimeInMillis(current.getTime());
-                        TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
-                        String sessionName = (calNow.get(Calendar.MONTH) + 1) + "_" +
-                                calNow.get(Calendar.DATE) + "_" + calNow.get(Calendar.YEAR) + "_" +
-                                calNow.get(Calendar.HOUR_OF_DAY) + "-" + calNow.get(Calendar.MINUTE) +
-                                "-" + calNow.get(Calendar.SECOND) + "(" + tm.getDeviceId() + ")";
-                        SessionDir = new File(ProjectDir + File.separator + sessionName);
-                        if (!SessionDir.exists()) {
-                            SessionDir.mkdir();
-                        }
-                        run = false;
-
-                        // Set streams to null
-                        fileHandler.setStreamsNull();
-
-                        // Check switches
-                        if (sensorCollectGUI.getSwitchWifiStatus()) {
-                            fileHandler.createWifi(SessionDir + File.separator + "wifi.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchVisualStatus()) {
-                            fileHandler.createVisual(SessionDir + File.separator + "visual.txt");
-                            sensorCollectGUI.getCamera().setEnabled(true);
-                        }
-                        if (sensorCollectGUI.getSwitchGyroscopeStatus()) {
-                            fileHandler.createGyro(SessionDir + File.separator + input + "gyroscope.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchMagneticStatus()) {
-                            fileHandler.createMagnetic(SessionDir + File.separator + input + "magnetic.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchAccelerometerStatus()) {
-                            fileHandler.createAccelerometer(SessionDir + File.separator + input + "accelerometer.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchOrientationStatus()) {
-                            fileHandler.createOrientation(SessionDir + File.separator + input + "orientation.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchGravityStatus()) {
-                            fileHandler.createGravity(SessionDir + File.separator + input + "gravity.txt");
-                        }
-
-                        /* Use the LocationManager class to obtain GPS locations */
-                        mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-                        mlocListener = new MyLocationListener(MainActivity.this,sensorCollectGUI.getSwitchGPSStatus());
-                        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SP.getInt("SEEKBAR_VALUE_GPS", 20000), 0, mlocListener);
-                        if (sensorCollectGUI.getSwitchGPSStatus()) {
-                            fileHandler.createGPS(SessionDir + File.separator + "gps.txt");
-                        }
-
-                        visualpath = SessionDir.getAbsolutePath();
-
-                        //Make summary file
-                        fileHandler.createSummary(SessionDir + File.separator + "Summary file.txt");
-                        try {
-                            Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                            location.getLatitude();
-                            fileHandler.fillSummaryWithGPS(location.getLatitude(), location.getLongitude());
-                        }
-                        catch (NullPointerException e){
-                            fileHandler.fillSummaryWithoutGPS();
-                        }
-
-                        /*
-                        Create a new intent and switch activities
-                         */
-                        startActivity(new Intent(MainActivity.this,RecordingScreen.class));
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
+    private void initPulseListener(){
+        //ultrasonic mp3 setup; spawn new thread
+        sensorCollectGUI.getPulse().setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    public void run() {
+                        //mpwork();
                     }
-                    //input.setFocusable(false);
-                    //input.setFocusable(false);
-                    //InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    //imm.hideSoftInputFromWindow(input.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
-
-                    startRecord(sensorCollectGUI.getSwitchWifiStatus());
-                    sensorCollectGUI.setOutput2Text("Recording data...");
-                } else {
-                    myLogRunnable.cleanThread();
-                    //Stop timer on async wifi scan
-                    // TODO Check switch
-                    if(sensorCollectGUI.getSwitchWifiStatus()) {
-                        Wifitimer.cancel();
-                        Wifitimer.purge();
-                        Wifitimer = null;
-                    }
-
-                    sensorCollectGUI.resetGUI();
-                    //Update contents of files for MTP connection
-                    fileHandler.invokeMediaScanner();
-                    //Upload files to server
-                    UploadAsync task = new UploadAsync(getBaseContext());
-                    task.execute(SessionDir);
-                    //Remove GPS service
-                    mlocManager.removeUpdates(mlocListener);
-
-                }
+                }).start();
             }
         });
+    }
 
+    private void initCameraListener(){
         //picture set up
         sensorCollectGUI.getCamera().setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -266,18 +177,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
-        //ultrasonic mp3 setup; spawn new thread
-        sensorCollectGUI.getPulse().setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    public void run() {
-                        //mpwork();
-                    }
-                }).start();
-            }
-        });
-
+    private void initVideoListener(){
         //video capture set up
         sensorCollectGUI.getVideo().setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -297,9 +199,152 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
+    /**
+     * init listener for sensor collect recording
+     */
+    private void initToggleListener(){
+        final String input = sensorCollectGUI.getInputText();
+        //begin recording
+        sensorCollectGUI.getToggle().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // do something, the isChecked will be
+                // true if the switch is in the On position
+                //Get date for naming file
+
+                //output.setText(Environment.getExternalStoragePublicDirectory("Senior Design").toString());
+
+                sensorCollectGUI.setToggleText("Recording");
+                run = isChecked;
+                if (isChecked) {
+                    setupDataFile(input);
+                    //input.setFocusable(false);
+                    //input.setFocusable(false);
+                    //InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    //imm.hideSoftInputFromWindow(input.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
+
+                    startRecord(sensorCollectGUI.getSwitchWifiStatus());
+                    sensorCollectGUI.setOutput2Text("Recording data...");
+                } else {
+                    myLogRunnable.cleanThread();
+                    //Stop timer on async wifi scan
+                    // TODO Check switch
+                    if (sensorCollectGUI.getSwitchWifiStatus()) {
+                        Wifitimer.cancel();
+                        Wifitimer.purge();
+                        Wifitimer = null;
+                    }
+
+                    sensorCollectGUI.resetGUI();
+                    //Update contents of files for MTP connection
+                    fileHandler.invokeMediaScanner();
+                    //Upload files to server
+                    UploadAsync task = new UploadAsync(getBaseContext());
+                    task.execute(SessionDir);
+                    //Remove GPS service
+                    mlocManager.removeUpdates(mlocListener);
+
+                }
+            }
+        });
+    }
+
+    /**
+     * Create file to be saved in external storage directory
+     */
+    private void setupDataFile(String input){
+        String summaryFileText = "";
+        //Data file creation
+        try {
+            //Set scan rates
+            wifiScanRate = SP.getInt("SEEKBAR_VALUE_WIFI", 20000);
+            sensorScanRate = SP.getInt("SEEKBAR_VALUE_SENSOR", 20000);
+
+            //app folder is setup
+            File ProjectDir = new File(Environment.getExternalStorageDirectory() + File.separator + appDirName);
+            if (!ProjectDir.exists()) {
+                ProjectDir.mkdir();
+            }
+
+            //Setup session file
+            SessionDir = new File(ProjectDir + File.separator + getSessionName());
+            if (!SessionDir.exists()) {
+                SessionDir.mkdir();
+            }
+
+            //reset the run boolean
+            run = false;
+
+            // Set streams to null
+            fileHandler.setStreamsNull();
+
+            // Check switches
+            if (sensorCollectGUI.getSwitchWifiStatus()) {
+                fileHandler.createWifi(SessionDir + File.separator + "wifi.txt");
+            }
+            if (sensorCollectGUI.getSwitchVisualStatus()) {
+                fileHandler.createVisual(SessionDir + File.separator + "visual.txt");
+                sensorCollectGUI.getCamera().setEnabled(true);
+            }
+            if (sensorCollectGUI.getSwitchGyroscopeStatus()) {
+                fileHandler.createGyro(SessionDir + File.separator + input + "gyroscope.txt");
+            }
+            if (sensorCollectGUI.getSwitchMagneticStatus()) {
+                fileHandler.createMagnetic(SessionDir + File.separator + input + "magnetic.txt");
+            }
+            if (sensorCollectGUI.getSwitchAccelerometerStatus()) {
+                fileHandler.createAccelerometer(SessionDir + File.separator + input + "accelerometer.txt");
+            }
+            if (sensorCollectGUI.getSwitchOrientationStatus()) {
+                fileHandler.createOrientation(SessionDir + File.separator + input + "orientation.txt");
+            }
+            if (sensorCollectGUI.getSwitchGravityStatus()) {
+                fileHandler.createGravity(SessionDir + File.separator + input + "gravity.txt");
+            }
+
+            /* Use the LocationManager class to obtain GPS locations */
+            mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            mlocListener = new MyLocationListener(MainActivity.this, sensorCollectGUI.getSwitchGPSStatus());
+            mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SP.getInt("SEEKBAR_VALUE_GPS", 20000), 0, mlocListener);
+            if (sensorCollectGUI.getSwitchGPSStatus()) {
+                fileHandler.createGPS(SessionDir + File.separator + "gps.txt");
+            }
+
+            visualpath = SessionDir.getAbsolutePath();
+
+            //Make summary file
+            fileHandler.createSummary(SessionDir + File.separator + "Summary file.txt");
+            try {
+                Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                location.getLatitude();
+                fileHandler.fillSummaryWithGPS(location.getLatitude(), location.getLongitude());
+            } catch (NullPointerException e) {
+                fileHandler.fillSummaryWithoutGPS();
+            }
+
+            //Create new intent and switch activities
+            startActivity(new Intent(MainActivity.this, RecordingScreen.class));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Returns sessionName: date/time/device id
+     * @return sessionName
+     */
+    private String getSessionName(){
+        Calendar calNow = Calendar.getInstance();
+        Date current = new Date();
+        calNow.setTimeInMillis(current.getTime());
+        TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+        return (calNow.get(Calendar.MONTH) + 1) + "_" +
+                calNow.get(Calendar.DATE) + "_" + calNow.get(Calendar.YEAR) + "_" +
+                calNow.get(Calendar.HOUR_OF_DAY) + "-" + calNow.get(Calendar.MINUTE) +
+                "-" + calNow.get(Calendar.SECOND) + "(" + tm.getDeviceId() + ")";
+    }
 
     class UploadAsync extends AsyncTask<File, Integer, Long> {
         Context context;
