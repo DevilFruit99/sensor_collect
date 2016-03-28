@@ -135,12 +135,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupSensorListeners(){
-        initCameraListener();
-        initVideoListener();
-        initToggleListener();
+        setupCameraListener();
+        setupVideoListener();
+        setupToggleListener();
     }
 
-    private void initCameraListener(){
+    private void setupCameraListener(){
         //picture set up
         sensorCollectGUI.getCamera().setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initVideoListener(){
+    private void setupVideoListener(){
         //video capture set up
         sensorCollectGUI.getVideo().setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -187,9 +187,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * init listener for sensor collect recording
+     * Setup setOnCheckedChangeListener for sensor collect recording
      */
-    private void initToggleListener(){
+    private void setupToggleListener(){
         final String input = sensorCollectGUI.getInputText();
         //begin recording
         sensorCollectGUI.getToggle().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
