@@ -39,13 +39,6 @@ public class LogRunnable implements Runnable{
     private int sensorScanRate;
     boolean run;
 
-    /* Never used, will delete eventually
-    LogRunnable(Context context, BufferedWriter ofstream, boolean[] value) {
-        mContext = context;
-        //inertiaofstream = ofstream;
-        run = value[0];
-    }*/
-
     public LogRunnable(Context context, FileHandler fileHandler, boolean[] value, int sensorScanRate) {
         mContext = context;
         this.fileHandler = fileHandler;

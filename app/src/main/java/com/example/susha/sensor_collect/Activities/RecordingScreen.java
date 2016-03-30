@@ -68,7 +68,7 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
         //Init fileHandle
         fileHandler = new FileHandler(RecordingScreen.this);
         // Set streams to null
-        fileHandler.setStreamsNull();
+        fileHandler.initOutputStreams();
         //gps = new File(MainActivity.SessionDir + File.separator + "gps.txt");
         visualpath = MainActivity.SessionDir.getAbsolutePath();
         try {

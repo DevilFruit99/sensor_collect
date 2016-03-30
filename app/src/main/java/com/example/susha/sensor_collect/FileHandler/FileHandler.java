@@ -18,22 +18,24 @@ import java.util.Date;
 
 public class FileHandler {
     private final Context mContext;
-    private File gyroscope;
-    private File magnetic;
-    private File accelerometer;
-    private File orientation;
-    private File gravity;
-    private BufferedWriter gyroscopeofstream;
-    private BufferedWriter magneticofstream;
-    private BufferedWriter accelerometerofstream;
-    private BufferedWriter orientationofstream;
-    private BufferedWriter gravityofstream;
-    private BufferedWriter summaryofstream;
-    private BufferedWriter wifiofstream;
-    private BufferedWriter visualofstream;
-    private File summaryfile;
-    private File wififile;
-    private File visualfile;
+
+    private File wifiFile;
+    private File visualFile;
+    private File gyroscopeFile;
+    private File magneticFile;
+    private File accelerometerFile;
+    private File orientationFile;
+    private File gravityFile;
+    private File summaryFile;
+
+    private BufferedWriter wifiOutputStream;
+    private BufferedWriter visualOutputStream;
+    private BufferedWriter gyroscopeOutputStream;
+    private BufferedWriter magneticOutputStream;
+    private BufferedWriter accelerometerOutputStream;
+    private BufferedWriter orientationOutputStream;
+    private BufferedWriter gravityOutputStream;
+    private BufferedWriter summaryOutputStream;
 
     private ArrayList<String> toBeScanned;
 
@@ -43,51 +45,51 @@ public class FileHandler {
         this.mContext = context;
     }
 
-    public void setStreamsNull(){
+    public void initOutputStreams(){
         // Init all bufferWriter objects to null, letting ifChecked modify them
-        wifiofstream = null;
-        visualofstream = null;
-        gyroscopeofstream = null;
-        magneticofstream = null;
-        accelerometerofstream = null;
-        orientationofstream = null;
-        gravityofstream = null;
+        wifiOutputStream = null;
+        visualOutputStream = null;
+        gyroscopeOutputStream = null;
+        magneticOutputStream = null;
+        accelerometerOutputStream = null;
+        orientationOutputStream = null;
+        gravityOutputStream = null;
     }
 
     public void createWifi(String dir) throws IOException {
-        wififile = new File(dir);
+        wifiFile = new File(dir);
         toBeScanned.add(dir);
-        wifiofstream = new BufferedWriter(new FileWriter(wififile));
+        wifiOutputStream = new BufferedWriter(new FileWriter(wifiFile));
     }
     public void createVisual(String dir) throws IOException {
-        visualfile = new File(dir);
+        visualFile = new File(dir);
         toBeScanned.add(dir);
-        visualofstream = new BufferedWriter(new FileWriter(visualfile));
+        visualOutputStream = new BufferedWriter(new FileWriter(visualFile));
     }
     public void createGyro(String dir) throws IOException {
-        gyroscope = new File(dir);
+        gyroscopeFile = new File(dir);
         toBeScanned.add(dir);
-        gyroscopeofstream = new BufferedWriter(new FileWriter(gyroscope));
+        gyroscopeOutputStream = new BufferedWriter(new FileWriter(gyroscopeFile));
     }
     public void createMagnetic(String dir) throws IOException {
-        magnetic = new File(dir);
+        magneticFile = new File(dir);
         toBeScanned.add(dir);
-        magneticofstream = new BufferedWriter(new FileWriter(magnetic));
+        magneticOutputStream = new BufferedWriter(new FileWriter(magneticFile));
     }
     public void createAccelerometer(String dir) throws IOException {
-        accelerometer = new File(dir);
+        accelerometerFile = new File(dir);
         toBeScanned.add(dir);
-        accelerometerofstream = new BufferedWriter(new FileWriter(accelerometer));
+        accelerometerOutputStream = new BufferedWriter(new FileWriter(accelerometerFile));
     }
     public void createOrientation(String dir) throws IOException {
-        orientation = new File(dir);
+        orientationFile = new File(dir);
         toBeScanned.add(dir);
-        orientationofstream = new BufferedWriter(new FileWriter(orientation));
+        orientationOutputStream = new BufferedWriter(new FileWriter(orientationFile));
     }
     public void createGravity(String dir) throws IOException {
-        gravity = new File(dir);
+        gravityFile = new File(dir);
         toBeScanned.add(dir);
-        gravityofstream = new BufferedWriter(new FileWriter(gravity));
+        gravityOutputStream = new BufferedWriter(new FileWriter(gravityFile));
     }
 
     public void createGPS(String dir) throws IOException {
@@ -95,9 +97,9 @@ public class FileHandler {
     }
 
     public void createSummary(String dir) throws IOException {
-        summaryfile = new File(dir);
+        summaryFile = new File(dir);
         toBeScanned.add(dir);
-        summaryofstream = new BufferedWriter(new FileWriter(summaryfile));
+        summaryOutputStream = new BufferedWriter(new FileWriter(summaryFile));
     }
 
     public void fillSummaryWithGPS(Double lat, Double lon){
@@ -112,8 +114,8 @@ public class FileHandler {
         s += "\n Model (and Product): " + android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
         summaryFileText+=s;
         try {
-            summaryofstream.write(summaryFileText);
-            summaryofstream.flush();
+            summaryOutputStream.write(summaryFileText);
+            summaryOutputStream.flush();
         } catch (IOException e) {
             Toast.makeText(mContext, "Failed to write to Summary file.txt", Toast.LENGTH_SHORT).show();
         }
@@ -131,8 +133,8 @@ public class FileHandler {
         s += "\n Model (and Product): " + android.os.Build.MODEL + " ("+ android.os.Build.PRODUCT + ")";
         summaryFileText+=s;
         try {
-            summaryofstream.write(summaryFileText);
-            summaryofstream.flush();
+            summaryOutputStream.write(summaryFileText);
+            summaryOutputStream.flush();
         } catch (IOException e) {
             Toast.makeText(mContext, "Failed to write to Summary file.txt", Toast.LENGTH_SHORT).show();
         }
@@ -148,53 +150,53 @@ public class FileHandler {
     }
 
     public void visualStreamWrite(String path) throws IOException {
-        visualofstream.write(path);
-        visualofstream.flush();
+        visualOutputStream.write(path);
+        visualOutputStream.flush();
     }
 
     public void wifiStreamWrite(String path) throws IOException {
-        wifiofstream.write(path);
-        wifiofstream.flush();
+        wifiOutputStream.write(path);
+        wifiOutputStream.flush();
     }
 
     public void writeAccelerometer(String add) throws IOException {
-        accelerometerofstream.write(add);
-        accelerometerofstream.flush();
+        accelerometerOutputStream.write(add);
+        accelerometerOutputStream.flush();
     }
 
     public void writeGravity(String add) throws IOException {
-        gravityofstream.write(add);
-        gravityofstream.flush();
+        gravityOutputStream.write(add);
+        gravityOutputStream.flush();
     }
 
     public void writeGyroscope(String add) throws IOException {
-        gyroscopeofstream.write(add);
-        gyroscopeofstream.flush();
+        gyroscopeOutputStream.write(add);
+        gyroscopeOutputStream.flush();
     }
 
     public void writeOrientation(String add) throws IOException {
-        orientationofstream.write(add);
-        orientationofstream.flush();
+        orientationOutputStream.write(add);
+        orientationOutputStream.flush();
     }
 
     public void writeMagnetic(String add) throws IOException {
-        magneticofstream.write(add);
-        magneticofstream.flush();
+        magneticOutputStream.write(add);
+        magneticOutputStream.flush();
     }
 
     public boolean isAccelerometerStreamNull(){
-        return accelerometerofstream == null;
+        return accelerometerOutputStream == null;
     }
     public boolean isGravityStreamNull(){
-        return gravityofstream == null;
+        return gravityOutputStream == null;
     }
     public boolean isGyroscopeStreamNull(){
-        return gyroscopeofstream == null;
+        return gyroscopeOutputStream == null;
     }
     public boolean isOrientationStreamNull(){
-        return orientationofstream == null;
+        return orientationOutputStream == null;
     }
     public boolean isMagneticStreamNull(){
-        return magneticofstream == null;
+        return magneticOutputStream == null;
     }
 }

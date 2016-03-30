@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
             run = false;
 
             // Set streams to null
-            fileHandler.setStreamsNull();
+            fileHandler.initOutputStreams();
 
             // Check switches
             if (sensorCollectGUI.getSwitchWifiStatus()) {
