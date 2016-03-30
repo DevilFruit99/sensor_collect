@@ -36,7 +36,6 @@ public class MainScreen{
     }
 
     private void initGUI(){
-
         //GUI setup
         input = (EditText) this.activity.findViewById(R.id.editText);
         output = (TextView) this.activity.findViewById(R.id.textView);

@@ -58,8 +58,16 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+    private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
+    public static final int MEDIA_TYPE_IMAGE = 1;
+    public static final int MEDIA_TYPE_VIDEO = 2;
+
+    private MainScreen sensorCollectGUI;
+
     List<ScanResult> AP = new ArrayList<ScanResult>();
-    AudioRecord record;
+
+    private AudioRecord record;
     private WifiManager wifiManager;
     private WifiManager.WifiLock scan;
     private Thread myThread;
@@ -77,16 +85,12 @@ public class MainActivity extends AppCompatActivity {
     public static File SessionDir;
     private FileHandler fileHandler;
     private static Timer Wifitimer;
-    private SharedPreferences SP;
+    private SharedPreferences sharedPref;
     //private static TimerTask doAsynchronousTask;
-
-    public int testcount;
 
     //textPictureCount field required for onActivityResult. Temp workaround
     private TextView textPictureCount;
 
-    private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
-    private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
     //final long minGPSTime = 10*1000; //1000 miliseconds, 10 muiltiplier = 10 seconds
     private int wifiScanRate;
     private int sensorScanRate;
@@ -95,18 +99,12 @@ public class MainActivity extends AppCompatActivity {
     private LocationManager mlocManager;
     private static final int REQUEST_LOC=0;
 
-    /**
-     * Change:Moved declaration out of onCreate() method to allow for modularization of sensorCollectGUI
-     * setup
-     */
-    private MainScreen sensorCollectGUI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        testcount = 0;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SP = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
         //Initialize GUI object
         sensorCollectGUI = new MainScreen(this);
@@ -128,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
     private void setupSensorCollectGUI() {
         //saves output file location. /data/data/com.example.susha.sensor_collect/files
         sensorCollectGUI.setOutputText(getBaseContext().getFilesDir().toString());
-        //Disable these features
         sensorCollectGUI.disableCamera();
         sensorCollectGUI.disableVideo();
         setupSensorListeners();
@@ -236,15 +233,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Create file to be saved in external storage directory
+     * Create file object, adding all necessary information(date/time/sensor information/location)
      */
     private void setupDataFile(String input){
         String summaryFileText = "";
         //Data file creation
         try {
             //Set scan rates
-            wifiScanRate = SP.getInt("SEEKBAR_VALUE_WIFI", 20000);
-            sensorScanRate = SP.getInt("SEEKBAR_VALUE_SENSOR", 20000);
+            wifiScanRate = sharedPref.getInt("SEEKBAR_VALUE_WIFI", 20000);
+            sensorScanRate = sharedPref.getInt("SEEKBAR_VALUE_SENSOR", 20000);
 
             //app folder is setup
             File ProjectDir = new File(Environment.getExternalStorageDirectory() + File.separator + appDirName);
@@ -291,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
             /* Use the LocationManager class to obtain GPS locations */
             mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             mlocListener = new MyLocationListener(MainActivity.this, sensorCollectGUI.getSwitchGPSStatus());
-            mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SP.getInt("SEEKBAR_VALUE_GPS", 20000), 0, mlocListener);
+            mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, sharedPref.getInt("SEEKBAR_VALUE_GPS", 20000), 0, mlocListener);
             if (sensorCollectGUI.getSwitchGPSStatus()) {
                 fileHandler.createGPS(SessionDir + File.separator + "gps.txt");
             }
@@ -342,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
             int count = files.length;
             long totalSize = 0;
             for (int i = 0; i < count; i++) {
-                totalSize += new FTPTransfer(SP).uploadFile(files[i],context);
+                totalSize += new FTPTransfer(sharedPref).uploadFile(files[i],context);
                 publishProgress((int) ((i / (float) count) * 100));
                 //Escape early if cancel() is called
                 if (isCancelled()) break;
@@ -402,8 +399,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     //Handling camera/camcorder data
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
+        switch(requestCode){
+            case CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE:
+                handleCaptureImageActivity(resultCode);
+                break;
+            case CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE:
+                handleCaptureVideoActivity(resultCode);
+                break;
+        }
+    }
+
+    /**
+     * Writes captured image to memory and set text for textPictureCount.
+     * @param resultCode
+     */
+    private void handleCaptureImageActivity(int resultCode){
+        switch(resultCode){
+            case RESULT_OK:
                 // Image captured and saved to fileUri specified in the Intent
                 Toast.makeText(this, "Image saved to:\n" +
                         visualpath, Toast.LENGTH_LONG).show();
@@ -421,16 +433,22 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
                 }
-            } else if (resultCode == RESULT_CANCELED) {
+                break;
+            case RESULT_CANCELED:
                 // User cancelled the image capture
-            } else {
+                break;
+            default:
                 // Image capture failed, advise user
-            }
         }
+    }
 
-        if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                // Video captured and saved to fileUri specified in the Intent
+    /**
+     * Writes captured video activity to memory.
+     * @param resultCode
+     */
+    private void handleCaptureVideoActivity(int resultCode){
+        switch (resultCode) {
+            case RESULT_OK:
                 Toast.makeText(this, "Video saved to:\n" +
                         visualpath, Toast.LENGTH_LONG).show();
                 try {
@@ -438,14 +456,14 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
                 }
-            } else if (resultCode == RESULT_CANCELED) {
+                break;
+            case RESULT_CANCELED:
                 // User cancelled the video capture
-            } else {
+                break;
+            default:
                 // Video capture failed, advise user
-            }
         }
     }
-
 
     //Ultrasound thread/method
     private void mpwork() {
@@ -573,9 +591,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-    public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
 
     /**
      * Create a file Uri for saving an image or video
