@@ -21,6 +21,10 @@ public class FileManager {
 
     private Context mContext;
 
+    private File file;
+    private String dir;
+    private BufferedWriter outputStream;
+
     private File wifiFile;
     private File visualFile;
     private File gyroscopeFile;
@@ -64,43 +68,40 @@ public class FileManager {
      * @throws IOException
      */
     public void createSensorFileAndOutputStream(FileType fileType, String dir) throws IOException {
+        this.dir = dir;
         if(fileType != FileType.GPS){
-            File file;
-            BufferedWriter outputStream;
             switch(fileType){
                 case WIFI:
-                    file = wifiFile;
-                    outputStream = wifiOutputStream;
+                    initFileAndBufferWriter(wifiFile,wifiOutputStream);
                     break;
                 case GYROSCOPE:
-                    file = gyroscopeFile;
-                    outputStream = gyroscopeOutputStream;
+                    initFileAndBufferWriter(gyroscopeFile,gyroscopeOutputStream);
                     break;
                 case MAGNETIC:
-                    file = magneticFile;
-                    outputStream = magneticOutputStream;
+                    initFileAndBufferWriter(magneticFile,magneticOutputStream);
                     break;
                 case ACCELEROMETER:
-                    file = accelerometerFile;
-                    outputStream = accelerometerOutputStream;
+                    initFileAndBufferWriter(accelerometerFile,accelerometerOutputStream);
                     break;
                 case ORIENTATION:
-                    file = orientationFile;
-                    outputStream = orientationOutputStream;
+                    initFileAndBufferWriter(orientationFile,orientationOutputStream);
                     break;
                 case GRAVITY:
-                    file = gravityFile;
-                    outputStream = gravityOutputStream;
+                    initFileAndBufferWriter(gravityFile,gravityOutputStream);
                     break;
                 case SUMMARY:
-                    file = summaryFile;
-                    outputStream = summaryOutputStream;
+                    initFileAndBufferWriter(summaryFile,summaryOutputStream);
                     break;
             }
-            file = new File(dir);
-            outputStream = new BufferedWriter(new FileWriter(file));
         }
         buffer.add(dir);
+    }
+
+    private void initFileAndBufferWriter(File file, BufferedWriter outputStream) throws IOException {
+        file = new File(dir);
+        outputStream = new BufferedWriter(new FileWriter(file));
+        this.file = file;
+        this.outputStream = outputStream;
     }
 
     /**
