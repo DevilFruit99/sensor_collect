@@ -126,21 +126,21 @@ public class LogRunnable implements Runnable{
                         Toast.makeText(mContext, "Magnetometer record fail; queue full", Toast.LENGTH_SHORT).show();
                     }
                 }
-                if (mGravity != null && mGeomagnetic != null && !fileHandler.isOrientationStreamNull()) {
+                /*if (mGravity != null && mGeomagnetic != null && !fileHandler.isOrientationStreamNull()) {
                     float R[] = new float[9];
                     float I[] = new float[9];
                     boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
                     if (success) {
                         float orientation[] = new float[3];
                         SensorManager.getOrientation(R, orientation);
-                        String add = Long.toString(current.getTime()) + "\t" + orientation[0] + "\t" + orientation[1] + "\t" + orientation[2] + "\n";
+                        String add = Long.toString(event.timestamp) + "\t" + orientation[0] + "\t" + orientation[1] + "\t" + orientation[2] + "\n";
                         try {
                             fileHandler.writeOrientation(add);
                         } catch (IOException e) {
                             Toast.makeText(mContext, "'Updated' Orientation record fail; queue full", Toast.LENGTH_SHORT).show();
                         }
                     }
-                }
+                }*/
             }
 
             @Override
