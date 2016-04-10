@@ -574,14 +574,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Create a media file name
         datestamp = new Date();
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(datestamp);
+        //String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(datestamp);
+        Date current = new Date();
         File mediaFile;
         if (type == 1)
             visualpath = mediaStorageDir + File.separator +
-                    "IMG_" + timeStamp + ".jpg";
+                    current.getTime() + ".jpg";
         if (type == 2)
             visualpath = mediaStorageDir + File.separator +
-                    "IMG_" + timeStamp + ".mp4";
+                    current.getTime() + ".mp4";
         if (type == MEDIA_TYPE_IMAGE || type == MEDIA_TYPE_VIDEO) {
             mediaFile = new File(visualpath);
         } else {
