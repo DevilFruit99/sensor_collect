@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath);
-                    Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();
+                    /*Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();*/
 
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath);
-                    Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();
+                    /*Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();*/
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
                 }
@@ -303,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
 
     class UploadAsync extends AsyncTask<File, Integer, Long> {
         Context context;
+        long totalSize;
         public UploadAsync(Context baseContext) {
             context = baseContext;
         }
@@ -310,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Long doInBackground(File... files) {
             int count = files.length;
-            long totalSize = 0;
+            totalSize = 0;
             for (int i = 0; i < count; i++) {
                 totalSize += new FTPTransfer(SP).uploadFile(files[i],context);
                 publishProgress((int) ((i / (float) count) * 100));
@@ -326,7 +327,12 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
         protected void onPostExecute(Long result) {
-            makeToast("Upload complete");
+            if (totalSize != 0) {
+                makeToast("Upload complete");
+            } else {
+                makeToast ("Upload unsuccessful, check credentials in Settings");
+            }
+
         }
     }
 
@@ -375,8 +381,8 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 // Image captured and saved to fileUri specified in the Intent
-                Toast.makeText(this, "Image saved to:\n" +
-                        visualpath, Toast.LENGTH_LONG).show();
+               /* Toast.makeText(this, "Image saved to:\n" +
+                        visualpath, Toast.LENGTH_LONG).show();*/
                 try {
                     fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + "\t" + visualpath + "\n");
 

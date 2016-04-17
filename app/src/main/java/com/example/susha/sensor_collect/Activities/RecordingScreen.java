@@ -247,11 +247,11 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
 
         // Create a media file name
         datestamp = new Date();
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(datestamp);
+        Date timeStamp = new Date();
         File mediaFile;
         if (type == 1)
             visualpath = mediaStorageDir + File.separator +
-                    "IMG_" + timeStamp + ".jpg";
+                    timeStamp.getTime() + ".jpg";
         if (type == 2)
             visualpath = mediaStorageDir + File.separator +
                     "IMG_" + timeStamp + ".mp4";

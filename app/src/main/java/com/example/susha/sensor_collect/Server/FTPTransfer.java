@@ -79,6 +79,7 @@ public class FTPTransfer {
                 }
                 Log.i("sftp", "uploading " + file.getName());//TODO remove. just for testing
                 c.put(file.getAbsolutePath(),dstFile,ChannelSftp.OVERWRITE);
+                size++;
             }
             c.disconnect();
             //BAD IMPL: c.put(srcFile.getAbsolutePath(),"/home/Server3/Blueprint/Android");// TODO ideally would like to implement put(src,dest,monitor,mode);

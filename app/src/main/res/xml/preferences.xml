@@ -72,10 +72,12 @@
 
         <EditTextPreference
             android:key="host"
-            android:title="Host Name"/>
+            android:title="Host Name"
+            android:defaultValue="130.245.191.166"/>
         <EditTextPreference
             android:key="user"
-            android:title="User Name"/>
+            android:title="User Name"
+            android:defaultValue="Server3"/>
         <EditTextPreference
             android:key="pass"
             android:title="Password"

@@ -53,9 +53,9 @@ public class MyLocationListener extends Service implements LocationListener{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Toast.makeText(mContext,
+           /* Toast.makeText(mContext,
                     "Debugging Purposes:\nLat: " + mlatitude + "\nLon: " + mlongitude,
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT).show();*/
         }
     }
 
