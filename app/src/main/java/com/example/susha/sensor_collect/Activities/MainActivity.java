@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
     //textPictureCount field required for onActivityResult. Temp workaround
     private TextView textPictureCount;
-
+    static final int FINISHED_RECORDING_REQUEST = 1;  // The request code for recording screen
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
     //final long minGPSTime = 10*1000; //1000 miliseconds, 10 muiltiplier = 10 seconds
@@ -94,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
     private LocationListener mlocListener;
     private LocationManager mlocManager;
     private static final int REQUEST_LOC=0;
+    //TODO Once sensorCollectGUI is a singleton, this variable is no longer needed and instead can be recreated in the onActivityResult method
+    MainScreen sensorCollectGUI;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         testcount = 0;
@@ -102,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         SP = PreferenceManager.getDefaultSharedPreferences(this);
 
         //Initialize GUI object
-        final MainScreen sensorCollectGUI = new MainScreen(this);
+        sensorCollectGUI = new MainScreen(this);
 
         //Init fileHandle
         fileHandler = new FileHandler(MainActivity.this);
@@ -122,17 +124,17 @@ public class MainActivity extends AppCompatActivity {
         tone = "test1.mp3";
 
         //begin begin recording
-        sensorCollectGUI.getToggle().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        sensorCollectGUI.getButtonRecord().setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
                 // do something, the isChecked will be
                 // true if the switch is in the On position
                 //Get date for naming file
 
                 //output.setText(Environment.getExternalStoragePublicDirectory("Senior Design").toString());
 
-                sensorCollectGUI.setToggleText("Recording");
-                run = isChecked;
-                if (isChecked) {
+                //sensorCollectGUI.setToggleText("Recording");
+                //run = isChecked;
+                //if (isChecked) {
                     String summaryFileText = "";
                     //Data file creation
                     try {
@@ -157,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                         if (!SessionDir.exists()) {
                             SessionDir.mkdir();
                         }
-                        run = false;
+                        //run = false;
 
                         // Set streams to null
                         fileHandler.setStreamsNull();
@@ -187,8 +189,8 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         /* Use the LocationManager class to obtain GPS locations */
-                        mlocManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-                        mlocListener = new MyLocationListener(MainActivity.this,sensorCollectGUI.getSwitchGPSStatus());
+                        mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        mlocListener = new MyLocationListener(MainActivity.this, sensorCollectGUI.getSwitchGPSStatus());
                         mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SP.getInt("SEEKBAR_VALUE_GPS", 20000), 0, mlocListener);
                         if (sensorCollectGUI.getSwitchGPSStatus()) {
                             fileHandler.createGPS(SessionDir + File.separator + "gps.txt");
@@ -202,15 +204,13 @@ public class MainActivity extends AppCompatActivity {
                             Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                             location.getLatitude();
                             fileHandler.fillSummaryWithGPS(location.getLatitude(), location.getLongitude());
-                        }
-                        catch (NullPointerException e){
+                        } catch (NullPointerException e) {
                             fileHandler.fillSummaryWithoutGPS();
                         }
 
-                        /*
-                        Create a new intent and switch activities
-                         */
-                        startActivity(new Intent(MainActivity.this,RecordingScreen.class));
+
+                        // disable switch when returning?
+                        //sensorCollectGUI.forceRecordDisable();
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -222,28 +222,40 @@ public class MainActivity extends AppCompatActivity {
 
                     startRecord(sensorCollectGUI.getSwitchWifiStatus());
                     sensorCollectGUI.setOutput2Text("Recording data...");
-                } else {
-                    myLogRunnable.cleanThread();
-                    //Stop timer on async wifi scan
-                    // TODO Check switch
-                    if(sensorCollectGUI.getSwitchWifiStatus()) {
-                        Wifitimer.cancel();
-                        Wifitimer.purge();
-                        Wifitimer = null;
-                    }
 
-                    sensorCollectGUI.resetGUI();
-                    //Update contents of files for MTP connection
-                    fileHandler.invokeMediaScanner();
-                    //Upload files to server
-                    UploadAsync task = new UploadAsync(getBaseContext());
-                    task.execute(SessionDir);
-                    //Remove GPS service
-                    mlocManager.removeUpdates(mlocListener);
+                    Intent recordScreenIntent = new Intent(MainActivity.this, RecordingScreen.class);
+                    /*
+                    Create a new intent and switch activities
+                    */
+                    startActivityForResult(recordScreenIntent,FINISHED_RECORDING_REQUEST);
 
+
+
+
+               // } else {
+               /*
+                myLogRunnable.cleanThread();
+                //Stop timer on async wifi scan
+                // TODO Check switch
+                if (sensorCollectGUI.getSwitchWifiStatus()) {
+                    Wifitimer.cancel();
+                    Wifitimer.purge();
+                    Wifitimer = null;
                 }
+
+                sensorCollectGUI.resetGUI();
+                //Update contents of files for MTP connection
+                fileHandler.invokeMediaScanner();
+                //Upload files to server
+                UploadAsync task = new UploadAsync(getBaseContext());
+                task.execute(SessionDir);
+                //Remove GPS service
+                mlocManager.removeUpdates(mlocListener);*/
+
+                //}
             }
         });
+
 
         //picture set up
         sensorCollectGUI.getCamera().setOnClickListener(new View.OnClickListener() {
@@ -298,7 +310,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+
     }
+
 
 
     class UploadAsync extends AsyncTask<File, Integer, Long> {
@@ -419,6 +435,26 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // Video capture failed, advise user
             }
+        }
+
+        if (requestCode == FINISHED_RECORDING_REQUEST){
+            myLogRunnable.cleanThread();
+            //Stop timer on async wifi scan
+            // TODO Check switch
+            if (sensorCollectGUI.getSwitchWifiStatus()) {
+                Wifitimer.cancel();
+                Wifitimer.purge();
+                Wifitimer = null;
+            }
+
+            sensorCollectGUI.resetGUI();
+            //Update contents of files for MTP connection
+            fileHandler.invokeMediaScanner();
+            //Upload files to server
+            UploadAsync task = new UploadAsync(getBaseContext());
+            task.execute(SessionDir);
+            //Remove GPS service
+            mlocManager.removeUpdates(mlocListener);
         }
     }
 

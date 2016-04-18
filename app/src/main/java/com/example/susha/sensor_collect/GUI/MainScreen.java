@@ -22,7 +22,7 @@ public class MainScreen{
     private TextView output;
     private TextView output2;
     private TextView textPictureCount;
-    private Switch toggle;
+    private Button buttonRecord;
     private Button pulse;
     private Button camera;
     private Button video;
@@ -41,7 +41,7 @@ public class MainScreen{
         //GUI setup
         input = (EditText) this.activity.findViewById(R.id.editText);
         output = (TextView) this.activity.findViewById(R.id.textView);
-        toggle = (Switch) this.activity.findViewById(R.id.switch1);
+        buttonRecord = (Button) this.activity.findViewById(R.id.switch1);
         pulse = (Button) this.activity.findViewById(R.id.button);
         camera = (Button) this.activity.findViewById(R.id.button2);
         video = (Button) this.activity.findViewById(R.id.button3);
@@ -51,8 +51,6 @@ public class MainScreen{
 
         //Constant initialization
         input.setHint("Session name");
-        toggle.setTextOff("Start");
-        toggle.setTextOn("Recording");
         textPictureCount.setText("# of pictures taken: 0");
 
     }
@@ -84,13 +82,11 @@ public class MainScreen{
         camera.setEnabled(false);
     }
 
+
     public void disableVideo(){
         video.setEnabled(false);
     }
 
-    public void setToggleText(String text){
-        toggle.setTextOn(text);
-    }
 
     public void setOutputText(String output) {
         this.output.setText(output);
@@ -152,7 +148,7 @@ public class MainScreen{
         output2.setText(text);
     }
 
-    public Switch getToggle() {
-        return toggle;
+    public Button getButtonRecord() {
+        return buttonRecord;
     }
 }

@@ -25,18 +25,6 @@
         android:windowSoftInputMode="stateAlwaysHidden"
         android:layout_marginTop="34dp" />
 
-    <Switch
-        android:id="@+id/switch1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Record"
-        android:checked="false"
-        android:clickable="true"
-        android:textColor="#FF0000"
-        android:layout_below="@+id/editText"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
@@ -82,5 +70,14 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Recording"
+        android:id="@+id/switch1"
+        android:layout_below="@+id/editText"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
