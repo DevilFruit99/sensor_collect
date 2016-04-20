@@ -621,7 +621,7 @@ public class MainActivity extends AppCompatActivity {
         File mediaFile;
         if (type == 1)
             visualpath = mediaStorageDir + File.separator +
-                    current.getTime() + ".jpg";
+                    System.currentTimeMillis() + ".jpg";
         if (type == 2)
             visualpath = mediaStorageDir + File.separator +
                     current.getTime() + ".mp4";
