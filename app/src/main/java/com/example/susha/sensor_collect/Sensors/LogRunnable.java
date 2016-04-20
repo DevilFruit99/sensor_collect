@@ -73,7 +73,8 @@ public class LogRunnable implements Runnable{
                 if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) && !fileHandler.isAccelerometerStreamNull()) {// && !lowAccuracy[currentDevice.indexOf
                     //(event.sensor)]) {
                     mGravity = event.values;
-                    String add = Long.toString(event.timestamp) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
+
+                    String add = System.currentTimeMillis()+ "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
                     try {
                         fileHandler.writeAccelerometer(add);
                     } catch (IOException e) {
@@ -82,7 +83,7 @@ public class LogRunnable implements Runnable{
                 }
                 if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) && !fileHandler.isGravityStreamNull()) {// && !lowAccuracy[currentDevice.indexOf
                     //(event.sensor)]) {
-                    String add = Long.toString(event.timestamp) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
+                    String add = System.currentTimeMillis() + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
                     try {
                         fileHandler.writeGravity(add);
                     } catch (IOException e) {
@@ -91,7 +92,7 @@ public class LogRunnable implements Runnable{
                 }
                 if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) && !fileHandler.isGyroscopeStreamNull()) {// && !lowAccuracy[currentDevice.indexOf
                     //(event.sensor)]) {
-                    String add = Long.toString(event.timestamp) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
+                    String add = System.currentTimeMillis() + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
                     try {
                         fileHandler.writeGyroscope(add);
                     } catch (IOException e) {
@@ -101,7 +102,7 @@ public class LogRunnable implements Runnable{
 
                 if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) && !fileHandler.isOrientationStreamNull()) {// && !lowAccuracy[currentDevice.indexOf
                     //(event.sensor)]) {
-                    String add = Long.toString(event.timestamp) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
+                    String add = System.currentTimeMillis() + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
                     try {
                         fileHandler.writeOrientation(add);
                     } catch (IOException e) {
@@ -109,7 +110,7 @@ public class LogRunnable implements Runnable{
                     }
                 }
                 if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) && !fileHandler.isMagneticStreamNull()) {
-                    String add = Long.toString(event.timestamp) + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
+                    String add = System.currentTimeMillis() + "\t" + event.values[0] + "\t" + event.values[1] + "\t" + event.values[2] + "\n";
                     mGeomagnetic = event.values;
                     try {
                         fileHandler.writeMagnetic(add);
