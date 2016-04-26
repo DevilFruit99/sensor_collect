@@ -39,6 +39,7 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
     public static final int MEDIA_TYPE_VIDEO = 2;
     private FileHandler fileHandler;
     private String visualpath;
+    private String picturePath;
     private Date datestamp;
 
     String[] values = new String[] { "This is a temp wrapper",
@@ -70,9 +71,10 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
         // Set streams to null
         fileHandler.setStreamsNull();
         //gps = new File(MainActivity.SessionDir + File.separator + "gps.txt");
-        visualpath = MainActivity.SessionDir.getAbsolutePath();
+        Intent intent = getIntent();
+        visualpath = intent.getExtras().getString("sessionDirectoryString");
         try {
-            fileHandler.createVisual(MainActivity.SessionDir + File.separator + "visual.txt");
+            fileHandler.createVisual(visualpath + File.separator + "visual.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -120,8 +122,8 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
                 startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
 
                 try {
-                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath);
-                    Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();
+                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath + "\n");
+                    //Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();
 
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
@@ -231,8 +233,8 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
     }
     private File getOutputMediaFile(int type) {
         // To be safe, you should check that the SDCard is mounted
-        // using Environment.getExternalStorageState() before doing this.
-        File mediaStorageDir = new File(MainActivity.SessionDir.getPath(), "Pictures");
+        // using Environment.getExternalStorageState() before doing this
+        File mediaStorageDir = new File(visualpath + File.separator, "Pictures");
 
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
@@ -250,13 +252,13 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
         Date timeStamp = new Date();
         File mediaFile;
         if (type == 1)
-            visualpath = mediaStorageDir + File.separator +
+            picturePath = mediaStorageDir + File.separator +
                     timeStamp.getTime() + ".jpg";
         if (type == 2)
-            visualpath = mediaStorageDir + File.separator +
+            picturePath = mediaStorageDir + File.separator +
                     "IMG_" + timeStamp + ".mp4";
         if (type == MEDIA_TYPE_IMAGE || type == MEDIA_TYPE_VIDEO) {
-            mediaFile = new File(visualpath);
+            mediaFile = new File(picturePath);
         } else {
             return null;
         }

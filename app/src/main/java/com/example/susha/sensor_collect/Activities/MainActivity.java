@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 //run = isChecked;
                 //if (isChecked) {
                     String summaryFileText = "";
+                    String sessionDirectoryString = "";
                     //Data file creation
                     try {
                         wifiScanRate = SP.getInt("SEEKBAR_VALUE_WIFI", 20000);
@@ -155,7 +156,8 @@ public class MainActivity extends AppCompatActivity {
                                 calNow.get(Calendar.DATE) + "_" + calNow.get(Calendar.YEAR) + "_" +
                                 calNow.get(Calendar.HOUR_OF_DAY) + "-" + calNow.get(Calendar.MINUTE) +
                                 "-" + calNow.get(Calendar.SECOND) + "(" + tm.getDeviceId() + ")";
-                        SessionDir = new File(ProjectDir + File.separator + sessionName);
+                        sessionDirectoryString = ProjectDir + File.separator + sessionName;
+                        SessionDir = new File(sessionDirectoryString);
                         if (!SessionDir.exists()) {
                             SessionDir.mkdir();
                         }
@@ -223,7 +225,11 @@ public class MainActivity extends AppCompatActivity {
                     startRecord(sensorCollectGUI.getSwitchWifiStatus());
                     sensorCollectGUI.setOutput2Text("Recording data...");
 
+
+
+                    //SessionDir = new File(ProjectDir + File.separator + sessionName);
                     Intent recordScreenIntent = new Intent(MainActivity.this, RecordingScreen.class);
+                    recordScreenIntent.putExtra("sessionDirectoryString",sessionDirectoryString);
                     /*
                     Create a new intent and switch activities
                     */
