@@ -328,12 +328,12 @@ public class MainActivity extends AppCompatActivity {
                 "-" + calNow.get(Calendar.SECOND) + "(" + tm.getDeviceId() + ")";
     }
 
+    //Async Upload class
     class UploadAsync extends AsyncTask<File, Integer, Long> {
         Context context;
         public UploadAsync(Context baseContext) {
             context = baseContext;
         }
-
         @Override
         protected Long doInBackground(File... files) {
             int count = files.length;
@@ -346,11 +346,6 @@ public class MainActivity extends AppCompatActivity {
             }
             return totalSize;
         }
-
-
-//        protected void onProgressUpdate(Integer... progress) {
-//            setProgressPercent(progress[0]);
-//        }
 
         protected void onPostExecute(Long result) {
             makeToast("Upload complete");
