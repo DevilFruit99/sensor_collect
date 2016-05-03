@@ -58,8 +58,8 @@ public class LogRunnable implements Runnable{
             currentDevice.add(mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY));
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null)
             currentDevice.add(mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null)
-            currentDevice.add(mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR));
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) != null)
+            currentDevice.add(mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR));
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null)
             currentDevice.add(mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD));
         /*mHandlerThread = new HandlerThread("InertiaLogListener");
@@ -100,7 +100,7 @@ public class LogRunnable implements Runnable{
                     }
                 }
 
-                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) && !fileHandler.isOrientationStreamNull()) {// && !lowAccuracy[currentDevice.indexOf
+                if (event.sensor == mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) && !fileHandler.isOrientationStreamNull()) {// && !lowAccuracy[currentDevice.indexOf
                     //(event.sensor)]) {
                     // Convert the rotation-vector to a 4x4 matrix.
                     float[] mRotationMatrix = new float[16];
