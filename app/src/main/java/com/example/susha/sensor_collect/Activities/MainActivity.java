@@ -390,7 +390,6 @@ public class MainActivity extends AppCompatActivity {
 
         boolean cheat[] = new boolean[1];
         cheat[0] = run;
-        //new Thread(new LogRunnable(MainActivity.this, inertiaofstream, cheat)).start();
         myLogRunnable = new LogRunnable(MainActivity.this,fileHandler, cheat, sensorScanRate);
         myThread= new Thread(myLogRunnable);
         myThread.start();
@@ -419,8 +418,6 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
                 }
-            } else if (resultCode == RESULT_CANCELED) {
-                // User cancelled the image capture
             } else {
                 // Image capture failed, advise user
             }
@@ -465,107 +462,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //Ultrasound thread/method
-    private void mpwork() {
-
-        audioDateStamp = new Date();
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(datestamp);
-        File outputFile = new File(Environment.getExternalStoragePublicDirectory(appDirName), timeStamp + ".pcm");
-        try {
-            fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + "\t" + outputFile.getPath() + "\n");
-        } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
-        }
-        if (outputFile.exists())
-            outputFile.delete();
-        try {
-            outputFile.createNewFile();
-            OutputStream outputStream = new FileOutputStream(outputFile);
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-            dataOutputStream = new DataOutputStream(bufferedOutputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        int minBufferSize = AudioRecord.getMinBufferSize(44100,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
-
-        record = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                44100, AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
-
-        record.startRecording(); //Use AudioRecord class to record full audio data
-        isRecording = true;
-        //Use thread to stream input audio to file
-        recordingThread = new Thread(new Runnable() {
-            public void run() {
-                writeAudioDataToFile();
-            }
-        }, "AudioRecorder Thread");
-        recordingThread.start();
-
-        //Use mediaplayer to play 20khz asset
-        MediaPlayer mp = new MediaPlayer();
-        try {
-            AssetManager manager = getBaseContext().getAssets();
-            AssetFileDescriptor descriptor = manager.openFd(tone);
-            mp.setDataSource(descriptor.getFileDescriptor());
-            mp.setLooping(false);
-            mp.prepare();
-            mp.start();
-            Toast.makeText(getBaseContext(), "MP START", Toast.LENGTH_SHORT).show();
-        } catch (FileNotFoundException e) {
-            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                // TODO Auto-generated method stub
-                try {
-                    isRecording = false;
-                    record.stop();
-                    record.release();
-                    dataOutputStream.close();
-                    record = null;
-                    recordingThread = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                mp.release();
-                Toast.makeText(getBaseContext(), "MP RELEASE", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-    }
 
 
-    //helper method to record audio data
-    private void writeAudioDataToFile() {
-        // Write the output audio in byte
-        int minBufferSize = AudioRecord.getMinBufferSize(11025,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
-        short[] audioData = new short[minBufferSize];
-
-        try {
-            while (isRecording) {
-                int numberOfShort = record.read(audioData, 0, minBufferSize);
-                for (int i = 0; i < numberOfShort; i++) {
-                    dataOutputStream.writeShort(audioData[i]);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
