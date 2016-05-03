@@ -35,3 +35,7 @@ local.properties
 .Trashes
 ehthumbs.db
 Thumbs.db
+.idea/gradle.xml
+.idea/runConfigurations.xml
+build/generated/mockable-android-23.jar
+build/intermediates/dex-cache/cache.xml
