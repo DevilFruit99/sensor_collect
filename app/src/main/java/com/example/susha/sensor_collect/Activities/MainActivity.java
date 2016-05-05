@@ -1,21 +1,18 @@
 package com.example.susha.sensor_collect.Activities;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.AudioFormat;
 import android.media.AudioRecord;
-import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -27,7 +24,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,16 +34,11 @@ import com.example.susha.sensor_collect.R;
 import com.example.susha.sensor_collect.Sensors.LogRunnable;
 import com.example.susha.sensor_collect.Sensors.MyLocationListener;
 import com.example.susha.sensor_collect.Sensors.WifiScan;
-import com.example.susha.sensor_collect.Server.FTPTransfer;
+import com.example.susha.sensor_collect.Server.AsyncUpload;
 
-import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -129,12 +120,6 @@ public class MainActivity extends AppCompatActivity {
                 // do something, the isChecked will be
                 // true if the switch is in the On position
                 //Get date for naming file
-
-                //output.setText(Environment.getExternalStoragePublicDirectory("Senior Design").toString());
-
-                //sensorCollectGUI.setToggleText("Recording");
-                //run = isChecked;
-                //if (isChecked) {
                     String summaryFileText = "";
                     String sessionDirectoryString = "";
                     //Data file creation
@@ -209,56 +194,20 @@ public class MainActivity extends AppCompatActivity {
                         } catch (NullPointerException e) {
                             fileHandler.fillSummaryWithoutGPS();
                         }
-
-
-                        // disable switch when returning?
-                        //sensorCollectGUI.forceRecordDisable();
-
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    //input.setFocusable(false);
-                    //input.setFocusable(false);
-                    //InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    //imm.hideSoftInputFromWindow(input.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
-
                     startRecord(sensorCollectGUI.getSwitchWifiStatus());
                     sensorCollectGUI.setOutput2Text("Recording data...");
 
 
 
-                    //SessionDir = new File(ProjectDir + File.separator + sessionName);
                     Intent recordScreenIntent = new Intent(MainActivity.this, RecordingScreen.class);
                     recordScreenIntent.putExtra("sessionDirectoryString",sessionDirectoryString);
                     /*
                     Create a new intent and switch activities
                     */
                     startActivityForResult(recordScreenIntent,FINISHED_RECORDING_REQUEST);
-
-
-
-
-               // } else {
-               /*
-                myLogRunnable.cleanThread();
-                //Stop timer on async wifi scan
-                // TODO Check switch
-                if (sensorCollectGUI.getSwitchWifiStatus()) {
-                    Wifitimer.cancel();
-                    Wifitimer.purge();
-                    Wifitimer = null;
-                }
-
-                sensorCollectGUI.resetGUI();
-                //Update contents of files for MTP connection
-                fileHandler.invokeMediaScanner();
-                //Upload files to server
-                UploadAsync task = new UploadAsync(getBaseContext());
-                task.execute(SessionDir);
-                //Remove GPS service
-                mlocManager.removeUpdates(mlocListener);*/
-
-                //}
             }
         });
 
@@ -268,20 +217,19 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //Create intent to capture image
 
-                fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
-                //fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
+                /*fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);//name camera file
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
-
+*/
                 // start the image capture Intent
                 startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
 
-                try {
-                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath);
-                    /*Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();*/
+              /*  try {
+                    //fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath);
+                    *//*Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();*//*
 
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
-                }
+                }*/
             }
         });
 
@@ -323,40 +271,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    class UploadAsync extends AsyncTask<File, Integer, Long> {
-        Context context;
-        long totalSize;
-        public UploadAsync(Context baseContext) {
-            context = baseContext;
-        }
 
-        @Override
-        protected Long doInBackground(File... files) {
-            int count = files.length;
-            totalSize = 0;
-            for (int i = 0; i < count; i++) {
-                totalSize += new FTPTransfer(SP).uploadFile(files[i],context);
-                publishProgress((int) ((i / (float) count) * 100));
-                //Escape early if cancel() is called
-                if (isCancelled()) break;
-            }
-            return totalSize;
-        }
-
-
-//        protected void onProgressUpdate(Integer... progress) {
-//            setProgressPercent(progress[0]);
-//        }
-
-        protected void onPostExecute(Long result) {
-            if (totalSize != 0) {
-                makeToast("Upload complete");
-            } else {
-                makeToast ("Upload unsuccessful, check credentials in Settings");
-            }
-
-        }
-    }
 
     private void makeToast(String toastText) {
         Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
@@ -390,7 +305,6 @@ public class MainActivity extends AppCompatActivity {
 
         boolean cheat[] = new boolean[1];
         cheat[0] = run;
-        //new Thread(new LogRunnable(MainActivity.this, inertiaofstream, cheat)).start();
         myLogRunnable = new LogRunnable(MainActivity.this,fileHandler, cheat, sensorScanRate);
         myThread= new Thread(myLogRunnable);
         myThread.start();
@@ -406,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
                /* Toast.makeText(this, "Image saved to:\n" +
                         visualpath, Toast.LENGTH_LONG).show();*/
                 try {
-                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + "\t" + visualpath + "\n");
+                    fileHandler.visualStreamWrite(/*Long.toString(datestamp.getTime())*/"test" + "\t" + visualpath + "\n");
 
                     // Append pic count
                     // Trying to avoid global variables, so instead read the string and append
@@ -416,11 +330,12 @@ public class MainActivity extends AppCompatActivity {
                     String updatedText = temp.subSequence(0,temp.length()-1).toString() + Integer.toString(count);
                     textPictureCount.setText(updatedText);
 
+                    fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+                    Bitmap bp = (Bitmap) data.getExtras().get("data");
+
                 } catch (IOException e) {
                     Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
                 }
-            } else if (resultCode == RESULT_CANCELED) {
-                // User cancelled the image capture
             } else {
                 // Image capture failed, advise user
             }
@@ -452,120 +367,46 @@ public class MainActivity extends AppCompatActivity {
                 Wifitimer.purge();
                 Wifitimer = null;
             }
+            String confirmMsg = "";
+            final AsyncUpload task = new AsyncUpload(this);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            confirmMsg ="Do you want to upload this recording?";
 
+            alertDialogBuilder.setMessage(confirmMsg);
+            //yes button
+            alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    task.execute(SessionDir);
+
+                }
+            });
+
+            //no button
+            alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener(){
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    setResult(RESULT_CANCELED);
+
+                }
+            });
+
+
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
             sensorCollectGUI.resetGUI();
             //Update contents of files for MTP connection
             fileHandler.invokeMediaScanner();
-            //Upload files to server
-            UploadAsync task = new UploadAsync(getBaseContext());
-            task.execute(SessionDir);
             //Remove GPS service
             mlocManager.removeUpdates(mlocListener);
         }
     }
 
 
-    //Ultrasound thread/method
-    private void mpwork() {
-
-        audioDateStamp = new Date();
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(datestamp);
-        File outputFile = new File(Environment.getExternalStoragePublicDirectory(appDirName), timeStamp + ".pcm");
-        try {
-            fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + "\t" + outputFile.getPath() + "\n");
-        } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
-        }
-        if (outputFile.exists())
-            outputFile.delete();
-        try {
-            outputFile.createNewFile();
-            OutputStream outputStream = new FileOutputStream(outputFile);
-            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-            dataOutputStream = new DataOutputStream(bufferedOutputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        int minBufferSize = AudioRecord.getMinBufferSize(44100,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
-
-        record = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                44100, AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT, minBufferSize);
-
-        record.startRecording(); //Use AudioRecord class to record full audio data
-        isRecording = true;
-        //Use thread to stream input audio to file
-        recordingThread = new Thread(new Runnable() {
-            public void run() {
-                writeAudioDataToFile();
-            }
-        }, "AudioRecorder Thread");
-        recordingThread.start();
-
-        //Use mediaplayer to play 20khz asset
-        MediaPlayer mp = new MediaPlayer();
-        try {
-            AssetManager manager = getBaseContext().getAssets();
-            AssetFileDescriptor descriptor = manager.openFd(tone);
-            mp.setDataSource(descriptor.getFileDescriptor());
-            mp.setLooping(false);
-            mp.prepare();
-            mp.start();
-            Toast.makeText(getBaseContext(), "MP START", Toast.LENGTH_SHORT).show();
-        } catch (FileNotFoundException e) {
-            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                // TODO Auto-generated method stub
-                try {
-                    isRecording = false;
-                    record.stop();
-                    record.release();
-                    dataOutputStream.close();
-                    record = null;
-                    recordingThread = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                mp.release();
-                Toast.makeText(getBaseContext(), "MP RELEASE", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-    }
 
 
-    //helper method to record audio data
-    private void writeAudioDataToFile() {
-        // Write the output audio in byte
-        int minBufferSize = AudioRecord.getMinBufferSize(11025,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
-        short[] audioData = new short[minBufferSize];
-
-        try {
-            while (isRecording) {
-                int numberOfShort = record.read(audioData, 0, minBufferSize);
-                for (int i = 0; i < numberOfShort; i++) {
-                    dataOutputStream.writeShort(audioData[i]);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

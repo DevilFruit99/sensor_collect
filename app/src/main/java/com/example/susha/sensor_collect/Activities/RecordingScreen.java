@@ -1,10 +1,12 @@
 package com.example.susha.sensor_collect.Activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 import com.example.susha.sensor_collect.FileHandler.FileHandler;
 import com.example.susha.sensor_collect.GUI.RecordingScreenGUI;
 import com.example.susha.sensor_collect.R;
+import com.example.susha.sensor_collect.Server.FTPTransfer;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -133,9 +136,20 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
 
         recordingScreenGUI.getStopRecord().setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
                 finish();
             }
         });
+    }
+
+    private void finishActivityDialog() {
+
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+
     }
 
     @Override
