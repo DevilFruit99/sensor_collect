@@ -137,47 +137,18 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
         recordingScreenGUI.getStopRecord().setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                finishActivityDialog();
-
+                finish();
             }
         });
     }
 
     private void finishActivityDialog() {
-        String confirmMsg = "";
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-            confirmMsg ="Do you want to upload this recording?";
 
-            alertDialogBuilder.setMessage(confirmMsg);
-            //yes button
-            alertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    finish();
-
-                }
-            });
-
-            //no button
-            alertDialogBuilder.setNegativeButton("No", new DialogInterface.OnClickListener(){
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                }
-            });
-
-
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        //TODO alertDialog here to confirm upload
-
 
     }
 
