@@ -2,8 +2,11 @@ package com.example.susha.sensor_collect.Server;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -25,24 +28,24 @@ public class FTPTransfer {
     private String user="";
     private String host="";
     private String pass = "";
-    int port=22;
-    SharedPreferences SP;
+    private static int port=22;
+    static SharedPreferences SP;
     public FTPTransfer(SharedPreferences SP){
-         this.SP=SP;
+         FTPTransfer.SP =SP;
 
     }
     public long uploadFile(File srcFile, Context context){
         long size=0;
-        JSch ssh = new JSch();
+
         try {
-            session = ssh.getSession(getUser(),getHost(),port);
+            session = getSSH().getSession(getUser(),getHost(),port);
             // remove the hard coding and add UI screen to get credentials
-            UserInfo ui = new MyUserInfo(context);
-            //session.setUserInfo(ui);//Use this to prompt password
+            //Use this to prompt password
             session.setPassword(getPass());//hardcoded for testing
 
             // Avoid asking for key confirmation
             //TODO NOT SECURE! need to find better way
+
             Properties prop = new Properties();
             prop.put("StrictHostKeyChecking", "no");
             session.setConfig(prop);
@@ -85,6 +88,7 @@ public class FTPTransfer {
             //BAD IMPL: c.put(srcFile.getAbsolutePath(),"/home/Server3/Blueprint/Android");// TODO ideally would like to implement put(src,dest,monitor,mode);
             //mode can be OVERWRITE, RESUME, or APPEND
         } catch (JSchException e) {
+
             e.printStackTrace();
         } catch (SftpException e) {
             e.printStackTrace();
@@ -94,16 +98,23 @@ public class FTPTransfer {
         return size;
     }
 
-    public String getUser(){
+    public static String getUser(){
 
         return SP.getString("user", "defaultUser");
     }
-    public String getHost(){
+    public static String getHost(){
         return SP.getString("host","defaultHost");
     }
 
-    public String getPass(){
+    //TODO show dialog for password if entered incorrectly
+    public static String getPass(){
         return SP.getString("pass","defaultPass");
+    }
+
+
+    private static JSch ssh;
+    public static JSch getSSH() {
+        return (ssh==null)?new JSch():ssh;
     }
 
 }
