@@ -1,7 +1,9 @@
 package com.example.susha.sensor_collect.Activities;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
@@ -13,27 +15,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.susha.sensor_collect.FileHandler.FileHandler;
+import com.example.susha.sensor_collect.GUI.CameraPreview;
 import com.example.susha.sensor_collect.GUI.RecordingScreenGUI;
 import com.example.susha.sensor_collect.R;
-import com.example.susha.sensor_collect.Server.FTPTransfer;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class RecordingScreen extends FragmentActivity implements OnMapReadyCallback{
+public class RecordingScreen extends Activity {
     ListView listView ;
     private Uri fileUri;
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
@@ -44,6 +42,10 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
     private String visualpath;
     private String picturePath;
     private Date datestamp;
+    private Camera camera;
+    private CameraPreview mPreview;
+    long shutterTime;
+    private static final String TAG = RecordingScreen.class.getName();
 
     String[] values = new String[] { "This is a temp wrapper",
             "Whether or not listview will be used is still undecided",
@@ -54,15 +56,18 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
             "List View Array Adapter",
             "Android Example List View"
     };
-
+    private Camera.ShutterCallback shutterCallBack = new Camera.ShutterCallback() {
+        @Override
+        public void onShutter() {
+            shutterTime = System.currentTimeMillis();
+        }
+    };
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recording_screen);
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(RecordingScreen.this);  // This calls OnMapReady(..). (Asynchronously)
         //Saturate the steps for the listview
         //TODO Listview is a temp wrapper
 
@@ -82,6 +87,13 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
             e.printStackTrace();
         }
 
+        //get an instance of camera
+        camera = getCameraInstance();
+
+        // Create our Preview view and set it as the content of our activity.
+        mPreview = new CameraPreview(this, camera);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+        preview.addView(mPreview);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, values);
@@ -114,25 +126,15 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
 
         recordingScreenGUI.getOpenCamera().setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //Create intent to capture image
-
-                datestamp = new Date();
-                fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
-                //fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE); // create a file to save the image
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
-
-                // start the image capture Intent
-                startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
-
-                try {
-                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath + "\n");
-                    //Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();
-
-                } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
-                }
+                //get an image from camera
+                camera.takePicture(shutterCallBack, null,mPicture);
             }
         });
+
+        Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
+            public void onShutter() {
+            }
+        };
 
         recordingScreenGUI.getStopRecord().setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -142,16 +144,36 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
         });
     }
 
-    private void finishActivityDialog() {
-
+    /**
+     * reset cam
+     */
+    private void resetCam() {
+        camera.startPreview();
     }
 
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
+    private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
 
-    }
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
 
+            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, shutterTime);
+            if (pictureFile == null){
+                Log.d(TAG, "Error creating media file, check storage permissions: ");
+                return;
+            }
+
+            try {
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                fos.write(data);
+                fos.close();
+                resetCam();
+            } catch (FileNotFoundException e) {
+                Log.d(TAG, "File not found: " + e.getMessage());
+            } catch (IOException e) {
+                Log.d(TAG, "Error accessing file: " + e.getMessage());
+            }
+        }
+    };
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -174,78 +196,7 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        //make a function in the future to limit the bounds of the map by using a listener
-        LatLngBounds SBU = new LatLngBounds(
-                new LatLng(40.910522, -73.136147), new LatLng(40.922764, -73.115162));
-
-        LatLng marker = new LatLng(40.915176, -73.123122);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker, 16));
-
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(40.915176, -73.123122))
-                .title("Default Marker"));
-    }
-
-
-
-    @Override
-    //Handling camera/camcorder data
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        datestamp = new Date();
-        if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                // Image captured and saved to fileUri specified in the Intent
-                Toast.makeText(this, "Image saved to:\n" +
-                        visualpath, Toast.LENGTH_LONG).show();
-                /*
-                try {
-                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + "\t" + visualpath + "\n");
-
-                    // Append pic count
-                    // Trying to avoid global variables, so instead read the string and append
-                    CharSequence temp = textPictureCount.getText();
-                    int count = Character.getNumericValue(textPictureCount.getText().charAt(temp.length()-1));
-                    count++;
-                    String updatedText = temp.subSequence(0,temp.length()-1).toString() + Integer.toString(count);
-                    textPictureCount.setText(updatedText);
-
-                } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
-                }*/
-            } else if (resultCode == RESULT_CANCELED) {
-                // User cancelled the image capture
-            } else {
-                // Image capture failed, advise user
-            }
-        }
-
-        if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                // Video captured and saved to fileUri specified in the Intent
-                Toast.makeText(this, "Video saved to:\n" +
-                        visualpath, Toast.LENGTH_LONG).show();
-                try {
-                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + "\t" + visualpath + "\n");
-                } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
-                }
-            } else if (resultCode == RESULT_CANCELED) {
-                // User cancelled the video capture
-            } else {
-                // Video capture failed, advise user
-            }
-        }
-    }
-    /**
-     * Create a file Uri for saving an image or video
-     */
-    private Uri getOutputMediaFileUri(int type) {
-        return Uri.fromFile(getOutputMediaFile(type));
-    }
-    private File getOutputMediaFile(int type) {
+    private File getOutputMediaFile(int type, long shutterTime) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this
         File mediaStorageDir = new File(visualpath + File.separator, "Pictures");
@@ -267,7 +218,7 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
         File mediaFile;
         if (type == 1)
             picturePath = mediaStorageDir + File.separator +
-                    timeStamp.getTime() + ".jpg";
+                    shutterTime + ".jpg";
         if (type == 2)
             picturePath = mediaStorageDir + File.separator +
                     "IMG_" + timeStamp + ".mp4";
@@ -279,5 +230,18 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
 
         return mediaFile;
     }
+
+    /** A safe way to get an instance of the Camera object. */
+    public static Camera getCameraInstance(){
+        Camera c = null;
+        try {
+            c = Camera.open(); // attempt to get a Camera instance
+        }
+        catch (Exception e){
+            // Camera is not available (in use or does not exist)
+        }
+        return c; // returns null if camera is unavailable
+    }
+
 }
 

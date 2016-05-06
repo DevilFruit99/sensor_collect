@@ -12,23 +12,22 @@
         android:layout_height="match_parent">
 
         <ListView
-            android:layout_width="match_parent"
+            android:layout_width="100dp"
             android:layout_height="212dp"
             android:id="@+id/listView"
             android:layout_gravity="center_horizontal"
-            android:layout_above="@+id/map"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true" />
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/finish_recording" />
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            android:name="com.google.android.gms.maps.MapFragment"
-            android:id="@+id/map"
-            android:layout_width="match_parent"
-            android:layout_height="320dp"
-            android:layout_above="@+id/finish_recording"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+        <FrameLayout
+            android:id="@+id/camera_preview"
+            android:layout_width="250dp"
+            android:layout_height="187.5dp"
+            android:layout_alignParentRight="true"
+            android:layout_weight="1"
+            />
 
         <Button
             android:layout_width="wrap_content"

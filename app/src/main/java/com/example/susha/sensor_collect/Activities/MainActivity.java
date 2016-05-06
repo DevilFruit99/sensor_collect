@@ -103,12 +103,8 @@ public class MainActivity extends AppCompatActivity {
         //saves output file location. /data/data/com.example.susha.sensor_collect/files
         sensorCollectGUI.setOutputText(getBaseContext().getFilesDir().toString());
 
-        sensorCollectGUI.disablePulse();
-        sensorCollectGUI.disableCamera();
-        sensorCollectGUI.disableVideo();
 
         final String input = sensorCollectGUI.getInputText();
-        textPictureCount = sensorCollectGUI.getTextPictureCount();
         //WiFi set up
         wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         scan = wifiManager.createWifiLock("expScan");
@@ -120,154 +116,94 @@ public class MainActivity extends AppCompatActivity {
                 // do something, the isChecked will be
                 // true if the switch is in the On position
                 //Get date for naming file
-                    String summaryFileText = "";
-                    String sessionDirectoryString = "";
-                    //Data file creation
-                    try {
-                        wifiScanRate = SP.getInt("SEEKBAR_VALUE_WIFI", 20000);
-                        sensorScanRate = SP.getInt("SEEKBAR_VALUE_SENSOR", 20000);
+                String summaryFileText = "";
+                String sessionDirectoryString = "";
+                //Data file creation
+                try {
+                    wifiScanRate = SP.getInt("SEEKBAR_VALUE_WIFI", 20000);
+                    sensorScanRate = SP.getInt("SEEKBAR_VALUE_SENSOR", 20000);
 
-                        //app folder is setup
-                        File ProjectDir = new File(Environment.getExternalStorageDirectory() + File.separator + appDirName);
+                    //app folder is setup
+                    File ProjectDir = new File(Environment.getExternalStorageDirectory() + File.separator + appDirName);
 
-                        if (!ProjectDir.exists()) {
-                            ProjectDir.mkdir();
-                        }
-                        Calendar calNow = Calendar.getInstance();
-                        Date current = new Date();
-                        calNow.setTimeInMillis(current.getTime());
-                        TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
-                        String sessionName = (calNow.get(Calendar.MONTH) + 1) + "_" +
-                                calNow.get(Calendar.DATE) + "_" + calNow.get(Calendar.YEAR) + "_" +
-                                calNow.get(Calendar.HOUR_OF_DAY) + "-" + calNow.get(Calendar.MINUTE) +
-                                "-" + calNow.get(Calendar.SECOND) + "(" + tm.getDeviceId() + ")";
-                        sessionDirectoryString = ProjectDir + File.separator + sessionName;
-                        SessionDir = new File(sessionDirectoryString);
-                        if (!SessionDir.exists()) {
-                            SessionDir.mkdir();
-                        }
-                        //run = false;
+                    if (!ProjectDir.exists()) {
+                        ProjectDir.mkdir();
+                    }
+                    Calendar calNow = Calendar.getInstance();
+                    Date current = new Date();
+                    calNow.setTimeInMillis(current.getTime());
+                    TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+                    String sessionName = (calNow.get(Calendar.MONTH) + 1) + "_" +
+                            calNow.get(Calendar.DATE) + "_" + calNow.get(Calendar.YEAR) + "_" +
+                            calNow.get(Calendar.HOUR_OF_DAY) + "-" + calNow.get(Calendar.MINUTE) +
+                            "-" + calNow.get(Calendar.SECOND) + "(" + tm.getDeviceId() + ")";
+                    sessionDirectoryString = ProjectDir + File.separator + sessionName;
+                    SessionDir = new File(sessionDirectoryString);
+                    if (!SessionDir.exists()) {
+                        SessionDir.mkdir();
+                    }
+                    //run = false;
 
-                        // Set streams to null
-                        fileHandler.setStreamsNull();
+                    // Set streams to null
+                    fileHandler.setStreamsNull();
 
-                        // Check switches
-                        if (sensorCollectGUI.getSwitchWifiStatus()) {
-                            fileHandler.createWifi(SessionDir + File.separator + "wifi.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchVisualStatus()) {
-                            fileHandler.createVisual(SessionDir + File.separator + "visual.txt");
-                            sensorCollectGUI.getCamera().setEnabled(true);
-                        }
-                        if (sensorCollectGUI.getSwitchGyroscopeStatus()) {
-                            fileHandler.createGyro(SessionDir + File.separator + input + "gyroscope.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchMagneticStatus()) {
-                            fileHandler.createMagnetic(SessionDir + File.separator + input + "magnetic.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchAccelerometerStatus()) {
-                            fileHandler.createAccelerometer(SessionDir + File.separator + input + "accelerometer.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchOrientationStatus()) {
-                            fileHandler.createOrientation(SessionDir + File.separator + input + "orientation.txt");
-                        }
-                        if (sensorCollectGUI.getSwitchGravityStatus()) {
-                            fileHandler.createGravity(SessionDir + File.separator + input + "gravity.txt");
-                        }
+                    // Check switches
+                    if (sensorCollectGUI.getSwitchWifiStatus()) {
+                        fileHandler.createWifi(SessionDir + File.separator + "wifi.txt");
+                    }
+                    if (sensorCollectGUI.getSwitchGyroscopeStatus()) {
+                        fileHandler.createGyro(SessionDir + File.separator + input + "gyroscope.txt");
+                    }
+                    if (sensorCollectGUI.getSwitchMagneticStatus()) {
+                        fileHandler.createMagnetic(SessionDir + File.separator + input + "magnetic.txt");
+                    }
+                    if (sensorCollectGUI.getSwitchAccelerometerStatus()) {
+                        fileHandler.createAccelerometer(SessionDir + File.separator + input + "accelerometer.txt");
+                    }
+                    if (sensorCollectGUI.getSwitchOrientationStatus()) {
+                        fileHandler.createOrientation(SessionDir + File.separator + input + "orientation.txt");
+                    }
+                    if (sensorCollectGUI.getSwitchGravityStatus()) {
+                        fileHandler.createGravity(SessionDir + File.separator + input + "gravity.txt");
+                    }
 
                         /* Use the LocationManager class to obtain GPS locations */
-                        mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                        mlocListener = new MyLocationListener(MainActivity.this, sensorCollectGUI.getSwitchGPSStatus());
-                        mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SP.getInt("SEEKBAR_VALUE_GPS", 20000), 0, mlocListener);
-                        if (sensorCollectGUI.getSwitchGPSStatus()) {
-                            fileHandler.createGPS(SessionDir + File.separator + "gps.txt");
-                        }
-
-                        visualpath = SessionDir.getAbsolutePath();
-
-                        //Make summary file
-                        fileHandler.createSummary(SessionDir + File.separator + "Summary file.txt");
-                        try {
-                            Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                            location.getLatitude();
-                            fileHandler.fillSummaryWithGPS(location.getLatitude(), location.getLongitude());
-                        } catch (NullPointerException e) {
-                            fileHandler.fillSummaryWithoutGPS();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    mlocListener = new MyLocationListener(MainActivity.this, sensorCollectGUI.getSwitchGPSStatus());
+                    mlocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, SP.getInt("SEEKBAR_VALUE_GPS", 20000), 0, mlocListener);
+                    if (sensorCollectGUI.getSwitchGPSStatus()) {
+                        fileHandler.createGPS(SessionDir + File.separator + "gps.txt");
                     }
-                    startRecord(sensorCollectGUI.getSwitchWifiStatus());
-                    sensorCollectGUI.setOutput2Text("Recording data...");
+
+                    visualpath = SessionDir.getAbsolutePath();
+
+                    //Make summary file
+                    fileHandler.createSummary(SessionDir + File.separator + "Summary file.txt");
+                    try {
+                        Location location = mlocManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        location.getLatitude();
+                        fileHandler.fillSummaryWithGPS(location.getLatitude(), location.getLongitude());
+                    } catch (NullPointerException e) {
+                        fileHandler.fillSummaryWithoutGPS();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                startRecord(sensorCollectGUI.getSwitchWifiStatus());
+                sensorCollectGUI.setOutput2Text("Recording data...");
 
 
-
-                    Intent recordScreenIntent = new Intent(MainActivity.this, RecordingScreen.class);
-                    recordScreenIntent.putExtra("sessionDirectoryString",sessionDirectoryString);
+                Intent recordScreenIntent = new Intent(MainActivity.this, RecordingScreen.class);
+                recordScreenIntent.putExtra("sessionDirectoryString", sessionDirectoryString);
                     /*
                     Create a new intent and switch activities
                     */
-                    startActivityForResult(recordScreenIntent,FINISHED_RECORDING_REQUEST);
+                startActivityForResult(recordScreenIntent, FINISHED_RECORDING_REQUEST);
             }
         });
-
-
-        //picture set up
-        sensorCollectGUI.getCamera().setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE); //Create intent to capture image
-
-                /*fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);//name camera file
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
-*/
-                // start the image capture Intent
-                startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
-
-              /*  try {
-                    //fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath);
-                    *//*Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();*//*
-
-                } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
-                }*/
-            }
-        });
-
-        //ultrasonic mp3 setup; spawn new thread
-        sensorCollectGUI.getPulse().setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                new Thread(new Runnable() {
-                    public void run() {
-                        //mpwork();
-                    }
-                }).start();
-            }
-        });
-
-        //video capture set up
-        sensorCollectGUI.getVideo().setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-                fileUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO); // create a file to save the image
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file name
-
-                // start the image capture Intent
-                startActivityForResult(intent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
-
-                try {
-                    fileHandler.visualStreamWrite(Long.toString(datestamp.getTime()) + " \t" + visualpath);
-                    /*Toast.makeText(getBaseContext(), Long.toString(datestamp.getTime()) + " \t" + visualpath, Toast.LENGTH_SHORT).show();*/
-                } catch (IOException e) {
-                    Toast.makeText(getBaseContext(), "Visual record fail; queue full", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-
-
-
     }
+
+
 
 
 

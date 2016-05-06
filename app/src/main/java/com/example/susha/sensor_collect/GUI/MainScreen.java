@@ -21,11 +21,7 @@ public class MainScreen{
     private EditText input;
     private TextView output;
     private TextView output2;
-    private TextView textPictureCount;
     private Button buttonRecord;
-    private Button pulse;
-    private Button camera;
-    private Button video;
     private SharedPreferences SP;
 
     private View mLayout;
@@ -42,16 +38,11 @@ public class MainScreen{
         input = (EditText) this.activity.findViewById(R.id.editText);
         output = (TextView) this.activity.findViewById(R.id.textView);
         buttonRecord = (Button) this.activity.findViewById(R.id.switch1);
-        pulse = (Button) this.activity.findViewById(R.id.button);
-        camera = (Button) this.activity.findViewById(R.id.button2);
-        video = (Button) this.activity.findViewById(R.id.button3);
         output2 = (TextView) this.activity.findViewById(R.id.textView2);
-        textPictureCount = (TextView) this.activity.findViewById(R.id.textPictureCount);
 
 
         //Constant initialization
         input.setHint("Session name");
-        textPictureCount.setText("# of pictures taken: 0");
 
     }
 
@@ -70,24 +61,7 @@ public class MainScreen{
         //add code to upload to server
         //show progress dialog
         output2.setText("");
-        textPictureCount.setText("# of pictures taken: 0");
-
-        camera.setEnabled(false);
     }
-    public void disablePulse(){
-        pulse.setEnabled(false);
-    }
-
-    public void disableCamera(){
-        camera.setEnabled(false);
-    }
-
-
-    public void disableVideo(){
-        video.setEnabled(false);
-    }
-
-
     public void setOutputText(String output) {
         this.output.setText(output);
     }
@@ -120,24 +94,8 @@ public class MainScreen{
         return SP.getBoolean("switchGravity",true);
     }
 
-    public Button getPulse() {
-        return pulse;
-    }
-
-    public Button getCamera() {
-        return camera;
-    }
-
-    public Button getVideo() {
-        return video;
-    }
-
     public boolean getSwitchWifiStatus() {
         return SP.getBoolean("switchWifi",true);
-    }
-
-    public TextView getTextPictureCount() {
-        return textPictureCount;
     }
 
     public String getInputText() {
