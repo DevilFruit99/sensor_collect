@@ -281,10 +281,12 @@ public class RecordingScreen extends FragmentActivity implements OnMapReadyCallb
     }
 }
 
-/*
+/*SEPERATOR
 Below is the class from the new cameraTimeBug branch. This employs a custom camera screen
 to appear on the layout textureview, allowing users to see a preview before taking a picture
 without having to throw the camera intent like in the current master.
+
+To use this, please remove any of the lines that say SEPERATOR
 
 public class RecordingScreen extends Activity {
     ListView listView ;
